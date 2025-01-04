@@ -121,61 +121,61 @@ void workingTimer() // Отработка действий по таймеру �
 void collect_Data_for_Send()
 {
     /*
-    Modul2Data_send.id++;
-    Modul2Data_send.pinMotorEn = HAL_GPIO_ReadPin(En_Motor_GPIO_Port, En_Motor_Pin); // Считываем состояние пина драйверов
+    Print2Data_send.id++;
+    Print2Data_send.pinMotorEn = HAL_GPIO_ReadPin(En_Motor_GPIO_Port, En_Motor_Pin); // Считываем состояние пина драйверов
 
     for (int i = 0; i < 4; i++) // Информация по моторам всегда
     {
-        Modul2Data_send.motor[i].status = motor[i].status;                                       // Считываем состояние пина драйверов
-        Modul2Data_send.motor[i].position = getAngle(motor[i].position);                         // Записываем текущую позицию преобразуя из импульсов в градусы, надо еще в глобальную систему преобразовывать
-        Modul2Data_send.motor[i].destination = getAngle(motor[i].destination);                   // Считываем цель по позиции, надо еще в глобальную систему преобразовывать
-        Modul2Data_send.micric[i] = HAL_GPIO_ReadPin(motor[i].micric_port, motor[i].micric_pin); //
+        Print2Data_send.motor[i].status = motor[i].status;                                       // Считываем состояние пина драйверов
+        Print2Data_send.motor[i].position = getAngle(motor[i].position);                         // Записываем текущую позицию преобразуя из импульсов в градусы, надо еще в глобальную систему преобразовывать
+        Print2Data_send.motor[i].destination = getAngle(motor[i].destination);                   // Считываем цель по позиции, надо еще в глобальную систему преобразовывать
+        Print2Data_send.micric[i] = HAL_GPIO_ReadPin(motor[i].micric_port, motor[i].micric_pin); //
     }
 
     for (int i = 0; i < 4; i++) // Информация по лазерам по ситуации
     {
-        if (Data2Modul_receive.controlLaser.mode != 0) // Если команда работать с датчиком
+        if (Data2Print_receive.controlLaser.mode != 0) // Если команда работать с датчиком
         {
-            Modul2Data_send.laser[i].status = dataUART[i].status;                                // Считываем статаус дальномера
-            Modul2Data_send.laser[i].distance = (float)dataUART[i].distance * 0.001;             // Считываем измерение растояния и пересчитываем в метры !!!
-            Modul2Data_send.laser[i].signalQuality = dataUART[i].quality;                        // Считываем качество сигнала измерение
-            Modul2Data_send.laser[i].angle = (float)dataUART[i].angle;                           // Считываем угол в котором произвели измерение
-            Modul2Data_send.laser[i].time = dataUART[i].time;                                    // Считываем время в котором произвели измерение
-            Modul2Data_send.laser[i].numPillar = Data2Modul_receive.controlMotor.numPillar[i];   // Переписываем номер столба на который измеряли расстояние
-            Modul2Data_send.laser[i].rate = dataUART[i].rate;
+            Print2Data_send.laser[i].status = dataUART[i].status;                                // Считываем статаус дальномера
+            Print2Data_send.laser[i].distance = (float)dataUART[i].distance * 0.001;             // Считываем измерение растояния и пересчитываем в метры !!!
+            Print2Data_send.laser[i].signalQuality = dataUART[i].quality;                        // Считываем качество сигнала измерение
+            Print2Data_send.laser[i].angle = (float)dataUART[i].angle;                           // Считываем угол в котором произвели измерение
+            Print2Data_send.laser[i].time = dataUART[i].time;                                    // Считываем время в котором произвели измерение
+            Print2Data_send.laser[i].numPillar = Data2Print_receive.controlMotor.numPillar[i];   // Переписываем номер столба на который измеряли расстояние
+            Print2Data_send.laser[i].rate = dataUART[i].rate;
         }
         else
         {
-            Modul2Data_send.laser[i].status = 888; // Статус не работаем с датчиком
-            Modul2Data_send.laser[i].distance = 0;
-            Modul2Data_send.laser[i].signalQuality = 0;
-            Modul2Data_send.laser[i].angle = 0;
-            Modul2Data_send.laser[i].time = 0;
-            Modul2Data_send.laser[i].numPillar = -1; // Номер не существующего столба
-            Modul2Data_send.laser[i].rate = 0;       //
+            Print2Data_send.laser[i].status = 888; // Статус не работаем с датчиком
+            Print2Data_send.laser[i].distance = 0;
+            Print2Data_send.laser[i].signalQuality = 0;
+            Print2Data_send.laser[i].angle = 0;
+            Print2Data_send.laser[i].time = 0;
+            Print2Data_send.laser[i].numPillar = -1; // Номер не существующего столба
+            Print2Data_send.laser[i].rate = 0;       //
         }
     }
 
-    Modul2Data_send.bno055 = bno055;
-    Modul2Data_send.spi = spi;
+    Print2Data_send.bno055 = bno055;
+    Print2Data_send.spi = spi;
 
     uint32_t cheksum_send = 0;                                          // Считаем контрольную сумму отправляемой структуры
-    unsigned char *adr_structura = (unsigned char *)(&Modul2Data_send); // Запоминаем адрес начала структуры. Используем для побайтной передачи
-    for (int i = 0; i < sizeof(Modul2Data_send) - 4; i++)
+    unsigned char *adr_structura = (unsigned char *)(&Print2Data_send); // Запоминаем адрес начала структуры. Используем для побайтной передачи
+    for (int i = 0; i < sizeof(Print2Data_send) - 4; i++)
     {
         cheksum_send += adr_structura[i]; // Побайтно складываем все байты структуры кроме последних 4 в которых переменная в которую запишем результат
     }
-    Modul2Data_send.cheksum = cheksum_send;
-    // Modul2Data_send.cheksum = 0x0101;
+    Print2Data_send.cheksum = cheksum_send;
+    // Print2Data_send.cheksum = 0x0101;
 
-    // DEBUG_PRINTF(" id= %0#6lX cheksum_send =  %0#6lX \n", Modul2Data_send.id, Modul2Data_send.cheksum);
+    // DEBUG_PRINTF(" id= %0#6lX cheksum_send =  %0#6lX \n", Print2Data_send.id, Print2Data_send.cheksum);
 
-    // Modul2Data_send.cheksum = measureCheksum_Modul2Data(Modul2Data_send); // Вычисляем контрольную сумму структуры и пишем ее значение в последний элемент
+    // Print2Data_send.cheksum = measureCheksum_Print2Data(Print2Data_send); // Вычисляем контрольную сумму структуры и пишем ее значение в последний элемент
 
     // копировнаие данных из моей уже заполненной структуры в буфер для DMA
     memset(txBuffer, 0, sizeof(txBuffer));                                          // Очистка буфера
-    struct Struct_Modul2Data *copy_txBuffer = (struct Struct_Modul2Data *)txBuffer; // Создаем переменную в которую пишем адрес буфера в нужном формате
-    *copy_txBuffer = Modul2Data_send;                                               // Копируем данные
+    struct Struct_Print2Data *copy_txBuffer = (struct Struct_Print2Data *)txBuffer; // Создаем переменную в которую пишем адрес буфера в нужном формате
+    *copy_txBuffer = Print2Data_send;                                               // Копируем данные
 
     // *******************************************************
     statusGetState = HAL_SPI_GetState(&hspi1);
@@ -214,25 +214,25 @@ void executeDataReceive()
 {
     /*
     // DEBUG_PRINTF("executeDataReceive... motor= %u laser= %u ", modeControlMotor, modeControlLaser);
-    // DEBUG_PRINTF("in... motor= %lu laser= %lu \r\n", Data2Modul_receive.controlMotor.mode, Data2Modul_receive.controlLaser.mode);
+    // DEBUG_PRINTF("in... motor= %lu laser= %lu \r\n", Data2Print_receive.controlMotor.mode, Data2Print_receive.controlLaser.mode);
     // Команда УПРАВЛЕНИЯ УГЛАМИ
-    if (Data2Modul_receive.controlMotor.mode == 0) // Если пришла команда 0 Управления
+    if (Data2Print_receive.controlMotor.mode == 0) // Если пришла команда 0 Управления
     {
         modeControlMotor = 0; // Запоминаем в каком режиме Motor
         // Ничего не делаем
     }
-    if (Data2Modul_receive.controlMotor.mode == 1) // Если пришла команда 1 Управления
+    if (Data2Print_receive.controlMotor.mode == 1) // Если пришла команда 1 Управления
     {
         modeControlMotor = 1; // Запоминаем в каком режиме Motor
         for (int i = 0; i < 4; i++)
         {
-            // DEBUG_PRINTF("executeDataReceive = %i status = %i \r\n",Data2Modul_receive.controlMotor.mode,motor[i].status);
-            setMotorAngle(i, Data2Modul_receive.controlMotor.angle[i]);
+            // DEBUG_PRINTF("executeDataReceive = %i status = %i \r\n",Data2Print_receive.controlMotor.mode,motor[i].status);
+            setMotorAngle(i, Data2Print_receive.controlMotor.angle[i]);
             // DEBUG_PRINTF("status = %i \r\n", motor[i].status);
         }
     }
     // Команда КОЛИБРОВКИ И УСТАНОВКИ В 0
-    if (Data2Modul_receive.controlMotor.mode == 9 && modeControlMotor != 9) // Если пришла команда 9 Колибровки и предыдущая была другая
+    if (Data2Print_receive.controlMotor.mode == 9 && modeControlMotor != 9) // Если пришла команда 9 Колибровки и предыдущая была другая
     {
         modeControlMotor = 9;  // Запоминаем в каком режиме Motor
         setMotor10();          // Отводим мотор на 10 градусов
@@ -240,7 +240,7 @@ void executeDataReceive()
         flagMode9 = true;      // что мы начали режим колибровки
     }
     // Команда ВКЛЮЧЕНИЯ ЛАЗЕРНЫХ ДАТЧИКОВ
-    if (Data2Modul_receive.controlLaser.mode == 1 && modeControlLaser != 1) // Если пришла команда и предыдущая была другая
+    if (Data2Print_receive.controlLaser.mode == 1 && modeControlLaser != 1) // Если пришла команда и предыдущая была другая
     {
         modeControlLaser = 1; // Запоминаем в каком режиме Лазер
 #ifdef LASER80
@@ -257,7 +257,7 @@ void executeDataReceive()
         sk60plus_startContinuousSlow(3);
 #endif
     }
-    if (Data2Modul_receive.controlLaser.mode == 2 && modeControlLaser != 2) // Если пришла команда и находимся не в этом режиме
+    if (Data2Print_receive.controlLaser.mode == 2 && modeControlLaser != 2) // Если пришла команда и находимся не в этом режиме
     {
         modeControlLaser = 2; // Запоминаем в каком режиме Лазер
 #ifdef LASER60
@@ -268,7 +268,7 @@ void executeDataReceive()
 #endif
     }
     // Команда ВЫЛЮЧЕНИЯ ЛАЗЕРНЫХ ДАТЧИКОВ
-    if (Data2Modul_receive.controlLaser.mode == 0 && modeControlLaser != 0) // Если пришла команда и предыдущая была другая
+    if (Data2Print_receive.controlLaser.mode == 0 && modeControlLaser != 0) // Если пришла команда и предыдущая была другая
     {
         modeControlLaser = 0; // Запоминаем в каком режиме Лазер
 #ifdef LASER80
@@ -302,10 +302,10 @@ void workingSPI()
         // DEBUG_PRINTF ("Out = %#x %#x %#x %#x \r\n",txBuffer[0],txBuffer[1],txBuffer[2],txBuffer[3]);
         // DEBUG_PRINTF("+\n");
         // processingDataReceive(); // Обработка пришедших данных после состоявшегося обмена  !!! Подумать почему меняю данные даже если они с ошибкой, потом по факту когда будет все работать
-        // DEBUG_PRINTF(" mode= %i \n",Data2Modul_receive.controlMotor.mode);
+        // DEBUG_PRINTF(" mode= %i \n",Data2Print_receive.controlMotor.mode);
         // executeDataReceive(); // Выполнение пришедших команд
 
-        // DEBUG_PRINTF(" Receive id= %i cheksum= %i command= %i ", Data2Modul_receive.id, Data2Modul_receive.cheksum,Data2Modul_receive.command );
+        // DEBUG_PRINTF(" Receive id= %i cheksum= %i command= %i ", Data2Print_receive.id, Data2Print_receive.cheksum,Data2Print_receive.command );
         // DEBUG_PRINTF("start = ");
         // for (int i = 0; i < sizeof(txBuffer); i++)
         // {
@@ -314,7 +314,7 @@ void workingSPI()
         // DEBUG_PRINTF("\n");
         // collect_Data_for_Send(); // Собираем данные в структуре для отправки на момент прихода команлы, но БЕЗ учета команды.До исполнения команды.
 
-        // DEBUG_PRINTF(" angle0= %.2f angle1= %.2f angle2= %.2f angle3= %.2f", Data2Modul_receive.angle[0], Data2Modul_receive.angle[1], Data2Modul_receive.angle[2], Data2Modul_receive.angle[3] );
+        // DEBUG_PRINTF(" angle0= %.2f angle1= %.2f angle2= %.2f angle3= %.2f", Data2Print_receive.angle[0], Data2Print_receive.angle[1], Data2Print_receive.angle[2], Data2Print_receive.angle[3] );
 
         // spi_slave_queue_Send();  // Закладываем данные в буфер для передачи(обмена)
 
@@ -333,16 +333,16 @@ void workingSPI()
 void initFirmware()
 {
     /*
-    Modul2Data_send.firmware.gen = 1;
-    Modul2Data_send.firmware.ver = 22;
-    Modul2Data_send.firmware.debug = DEBUG;
+    Print2Data_send.firmware.gen = 1;
+    Print2Data_send.firmware.ver = 22;
+    Print2Data_send.firmware.debug = DEBUG;
 #ifdef LASER60
-    Modul2Data_send.firmware.laser = 60;
+    Print2Data_send.firmware.laser = 60;
 #endif
 #ifdef LASER80
-    Modul2Data_send.firmware.laser = 80;
+    Print2Data_send.firmware.laser = 80;
 #endif
-    Modul2Data_send.firmware.motor = STEPMOTOR;
+    Print2Data_send.firmware.motor = STEPMOTOR;
     */
 }
 #endif /*CODE_H*/

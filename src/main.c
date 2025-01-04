@@ -40,9 +40,9 @@ int main(void)
 
   initFirmware();
   printf("\r\n *** printBIM.ru 2025. ***\r\n");
-  //printf("Firmware gen %hu ver %hu laser %hu motor %.1f debug %hu\n", Modul2Data_send.firmware.gen, Modul2Data_send.firmware.ver,Modul2Data_send.firmware.laser,Modul2Data_send.firmware.motor,Modul2Data_send.firmware.debug);
+  //printf("Firmware gen %hu ver %hu laser %hu motor %.1f debug %hu\n", Print2Data_send.firmware.gen, Print2Data_send.firmware.ver,Print2Data_send.firmware.laser,Print2Data_send.firmware.motor,Print2Data_send.firmware.debug);
 
-  initSPI_slave(); // Закладываем начальноы значения и инициализируем буфер DMA //  // Запуск обмена данными по SPI с использованием DMA
+  initSPI_slave(); // 
 
   timeSpi = millis(); // Запоминаем время начала цикла
   DEBUG_PRINTF("%lli LOOP !!!!!!!!!!!!!!!!!!!!!!!!!!! \r\n", timeSpi);
