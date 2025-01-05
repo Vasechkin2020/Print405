@@ -64,8 +64,8 @@ extern "C"
         uint32_t cheksum;                  // Контрольная сумма данных в структуре
     };
 
-    struct Struct_Data2Print Data2Print_receive;                          // Экземпляр структуры получаемых данных
-    struct SControlPrint controlPrint;                                    // Управление всей печатью
+    struct Struct_Data2Print Data2Print_receive;                               // Экземпляр структуры получаемых данных
+    struct SControlPrint controlPrint;                                         // Управление всей печатью
     static const uint16_t size_structura_receive = sizeof(Data2Print_receive); // Размер структуры с данными которые получаем
 
     //*********************************************************************
@@ -105,8 +105,8 @@ extern "C"
         uint32_t cheksum; // Контрольная сумма данных в структуре
     };
 
-    struct Struct_Print2Data Print2Data_send; // Тут все переменные его характеризующие на низком уровне
-    static const uint16_t size_structura_send = sizeof(Print2Data_send);                                                                       // Размер структуры с данными которые передаем
+    struct Struct_Print2Data Print2Data_send;                            // Тут все переменные его характеризующие на низком уровне
+    static const uint16_t size_structura_send = sizeof(Print2Data_send); // Размер структуры с данными которые передаем
     // static const uint16_t max_size_stuct = (size_structura_receive < size_structura_send) ? size_structura_send : size_structura_receive; // Какая из структур больше
 
 #ifdef __cplusplus

@@ -7,7 +7,7 @@ CAN_HandleTypeDef hcan1;
 void MX_CAN1_Init(void)
 {
   hcan1.Instance = CAN1;
-  hcan1.Init.Prescaler = 16;
+  hcan1.Init.Prescaler = 16; // Настройка скорости ( делитель при частоте APB1)
   hcan1.Init.Mode = CAN_MODE_NORMAL;
   hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
   hcan1.Init.TimeSeg1 = CAN_BS1_1TQ;

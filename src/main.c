@@ -12,9 +12,11 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include "can.h"
 
 #include "code.h"
 #include "slaveSPI.h"
+#include "gim43xx.h"
 
 void SystemClock_Config(void);
 volatile uint32_t millisCounter = 0;
@@ -34,6 +36,8 @@ int main(void)
 
   MX_TIM6_Init();
   MX_TIM7_Init();
+
+  MX_CAN1_Init();
 
   HAL_TIM_Base_Start_IT(&htim6); // Таймер для общего цикла
   HAL_TIM_Base_Start_IT(&htim7); // Таймер для моторов шаговых для датчиков
