@@ -20,6 +20,7 @@ void MX_CAN1_Init(void)
   hcan1.Init.TransmitFifoPriority = DISABLE;
   if (HAL_CAN_Init(&hcan1) != HAL_OK)
   {
+    printf("Error MX_CAN1_Init \r\n");
     Error_Handler();
   }
 }
@@ -132,6 +133,7 @@ void CAN_ConfigFilters(void)
 
   if (HAL_CAN_ConfigFilter(&hcan1, &filterConfig) != HAL_OK)
   {
+    printf("Error CAN_ConfigFilters \r\n");
     Error_Handler();
   }
 }
@@ -144,6 +146,7 @@ void CAN_Notifications_Init(void)
                                                CAN_IT_ERROR_WARNING) != HAL_OK)
   {
     // Обработка ошибки
+    printf("Error CAN_Notifications_Init \r\n");
     Error_Handler();
   }
   /*
@@ -168,6 +171,44 @@ void CAN_Start()
   // Запускаем CAN
   if (HAL_CAN_Start(&hcan1) != HAL_OK)
   {
+    // Получение кода ошибки
+    uint32_t error = HAL_CAN_GetError(&hcan1);
+
+    if (error == HAL_CAN_ERROR_NONE)
+    {
+      printf("No CAN errors detected\n");
+    }
+    else
+    {
+      if (error & HAL_CAN_ERROR_EWG)
+      {
+        printf("Warning Error detected\n");
+      }
+      if (error & HAL_CAN_ERROR_EPV)
+      {
+        printf("Error Passive state\n");
+      }
+      if (error & HAL_CAN_ERROR_BOF)
+      {
+        printf("Bus Off state\n");
+      }
+      if (error & HAL_CAN_ERROR_ACK)
+      {
+        printf("Acknowledgment Error\n");
+      }
+      if (error & HAL_CAN_ERROR_RX_FOV0)
+      {
+        printf("FIFO0 Overflow\n");
+      }
+      if (error & HAL_CAN_ERROR_TIMEOUT)
+      {
+        printf("HAL_CAN_ERROR_TIMEOUT\n");
+      }
+    }
+
+    printf("Error CAN_Start \r\n");
+    printf("Other CAN error: 0x%08lx\n", error);
+
     // Запуск не удался
     Error_Handler();
   }

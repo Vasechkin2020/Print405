@@ -52,31 +52,27 @@ int main(void)
 
   initSPI_slave(); //
 
+  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 800);// Запуск ШИМ на канале TIM8_CH1
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  HAL_Delay(10000);
   HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
-  // __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1000);// Запуск ШИМ на канале TIM8_CH1
-  // HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  // HAL_Delay(60000);
-  // for (int i = 0; i < 3; i++)
-  // {
-  //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1800);// Запуск ШИМ на канале TIM8_CH1
-  //   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  //   HAL_Delay(3000);
+  for (int i = 0; i < 5; i++)
+  {
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 2100);// Запуск ШИМ на канале TIM8_CH1
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+    HAL_Delay(3000);
 
-  //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1550);// Запуск ШИМ на канале TIM8_CH1
-  //   //HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);// Остановка ШИМ на канале TIM8_CH1
-  //   HAL_Delay(100);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1550);// Запуск ШИМ на канале TIM8_CH1
+    //HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);// Остановка ШИМ на канале TIM8_CH1
+    HAL_Delay(100);
 
-  //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1300);
-  //   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  //   HAL_Delay(3000);
-  //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1550);// Запуск ШИМ на канале TIM8_CH1
-  //   HAL_Delay(100);
-  // }
-  // HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
-
-  // __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 7500);
-  // HAL_Delay(5000);
-  // __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 9000);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 800);
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+    HAL_Delay(3000);
+    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1550);// Запуск ШИМ на канале TIM8_CH1
+    HAL_Delay(100);
+  }
+  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 
   timeSpi = millis(); // Запоминаем время начала цикла
   DEBUG_PRINTF("%lli LOOP !!!!!!!!!!!!!!!!!!!!!!!!!!! \r\n", timeSpi);
