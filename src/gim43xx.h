@@ -67,5 +67,65 @@ void ackData(uint8_t *data)
     uint16_t position = (p - 32768) / 32768 * 12.5;
     uint16_t speed = (v - 2048) / 2048 * 65;
     uint16_t torque = (t - 2048) / 2048 * 4;
+
+    (void)id;
+    (void)position;
+    (void)speed;
+    (void)torque;
 }
+
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+    CAN_RxHeaderTypeDef rxHeader;
+    uint8_t rxData[8];
+
+    // Считывание сообщения из FIFO0
+    if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rxHeader, rxData) == HAL_OK) {
+        // Обработка данных
+        HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12); // Пример: переключение светодиода
+    } else {
+        // Обработка ошибок
+        Error_Handler();
+    }
+}
+
+
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+    CAN_RxHeaderTypeDef rxHeader;
+    uint8_t rxData[8];
+
+    // Считывание сообщения из FIFO1
+    if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &rxHeader, rxData) == HAL_OK) {
+        // Обработка данных
+        HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13); // Пример: переключение другого светодиода
+    } else {
+        // Обработка ошибок
+        Error_Handler();
+    }
+}
+
+// void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+//     CAN_RxHeaderTypeDef rxHeader;
+//     uint8_t rxData[8];
+
+//     // Считывание сообщения из FIFO1
+//     if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &rxHeader, rxData) == HAL_OK) {
+//         // Обработка данных
+//         // Например, мигнуть светодиодом или сохранить данные в буфер
+//         HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13);
+//     } else {
+//         // Обработка ошибки приема
+//         Error_Handler();
+//     }
+// }
+
+
+
+
+
+
+
+
+
+
+
 #endif
