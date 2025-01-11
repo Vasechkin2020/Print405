@@ -18,6 +18,7 @@ void MX_CAN1_Init(void);
 void CAN_ConfigFilters(void);
 void CAN_Notifications_Init(void);
 void CAN_Start();
+void CAN_SendMessage(uint8_t *data, uint8_t length);
 
 #ifdef __cplusplus
 }

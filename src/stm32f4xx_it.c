@@ -13,20 +13,20 @@ extern TIM_HandleTypeDef htim7;
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */
 /******************************************************************************/
 /**
-  * @brief This function handles Non maskable interrupt.
-  */
+ * @brief This function handles Non maskable interrupt.
+ */
 void NMI_Handler(void)
 {
   /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-   while (1)
+  while (1)
   {
   }
   /* USER CODE END NonMaskableInt_IRQn 1 */
 }
 
 /**
-  * @brief This function handles Hard fault interrupt.
-  */
+ * @brief This function handles Hard fault interrupt.
+ */
 void HardFault_Handler(void)
 {
   while (1)
@@ -37,8 +37,8 @@ void HardFault_Handler(void)
 }
 
 /**
-  * @brief This function handles Memory management fault.
-  */
+ * @brief This function handles Memory management fault.
+ */
 void MemManage_Handler(void)
 {
   while (1)
@@ -49,8 +49,8 @@ void MemManage_Handler(void)
 }
 
 /**
-  * @brief This function handles Pre-fetch fault, memory access fault.
-  */
+ * @brief This function handles Pre-fetch fault, memory access fault.
+ */
 void BusFault_Handler(void)
 {
   while (1)
@@ -61,8 +61,8 @@ void BusFault_Handler(void)
 }
 
 /**
-  * @brief This function handles Undefined instruction or illegal state.
-  */
+ * @brief This function handles Undefined instruction or illegal state.
+ */
 void UsageFault_Handler(void)
 {
   while (1)
@@ -73,32 +73,29 @@ void UsageFault_Handler(void)
 }
 
 /**
-  * @brief This function handles System service call via SWI instruction.
-  */
+ * @brief This function handles System service call via SWI instruction.
+ */
 void SVC_Handler(void)
 {
-
 }
 
 /**
-  * @brief This function handles Debug monitor.
-  */
+ * @brief This function handles Debug monitor.
+ */
 void DebugMon_Handler(void)
 {
-
 }
 
 /**
-  * @brief This function handles Pendable request for system service.
-  */
+ * @brief This function handles Pendable request for system service.
+ */
 void PendSV_Handler(void)
 {
-
 }
 
 /**
-  * @brief This function handles System tick timer.
-  */
+ * @brief This function handles System tick timer.
+ */
 void SysTick_Handler(void)
 {
   HAL_IncTick();
@@ -112,72 +109,74 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles CAN1 TX interrupts.
-  */
+ * @brief This function handles CAN1 TX interrupts.
+ */
 void CAN1_TX_IRQHandler(void)
 {
   HAL_CAN_IRQHandler(&hcan1);
 }
 
 /**
-  * @brief This function handles CAN1 RX0 interrupts.
-  */
+ * @brief This function handles CAN1 RX0 interrupts.
+ */
 void CAN1_RX0_IRQHandler(void)
 {
   HAL_CAN_IRQHandler(&hcan1);
 }
 
 /**
-  * @brief This function handles CAN1 RX1 interrupt.
-  */
+ * @brief This function handles CAN1 RX1 interrupt.
+ */
 void CAN1_RX1_IRQHandler(void)
 {
   HAL_CAN_IRQHandler(&hcan1);
 }
 
 /**
-  * @brief This function handles CAN1 SCE interrupt.
-  */
+ * @brief This function handles CAN1 SCE interrupt.
+ */
 void CAN1_SCE_IRQHandler(void)
 {
+  HAL_GPIO_WritePin(Analiz_GPIO_Port, Analiz_Pin, GPIO_PIN_SET); // Инвертирование состояния выхода.
   HAL_CAN_IRQHandler(&hcan1);
+  HAL_GPIO_WritePin(Analiz_GPIO_Port, Analiz_Pin, GPIO_PIN_RESET); // Инвертирование состояния выхода.
 }
 
 /**
-  * @brief This function handles SPI1 global interrupt.
-  */
+ * @brief This function handles SPI1 global interrupt.
+ */
 void SPI1_IRQHandler(void)
 {
   HAL_SPI_IRQHandler(&hspi1);
 }
 
 /**
-  * @brief This function handles TIM6 global interrupt, DAC1 and DAC2 underrun error interrupts.
-  */
+ * @brief This function handles TIM6 global interrupt, DAC1 and DAC2 underrun error interrupts.
+ */
 void TIM6_DAC_IRQHandler(void)
 {
   HAL_TIM_IRQHandler(&htim6);
 }
 
 /**
-  * @brief This function handles TIM7 global interrupt.
-  */
+ * @brief This function handles TIM7 global interrupt.
+ */
 void TIM7_IRQHandler(void)
 {
   HAL_TIM_IRQHandler(&htim7);
 }
 
 /**
-  * @brief This function handles DMA2 stream0 global interrupt.
-  */
+ * @brief This function handles DMA2 stream0 global interrupt.
+ */
 void DMA2_Stream0_IRQHandler(void)
 {
   HAL_DMA_IRQHandler(&hdma_spi1_rx);
 }
 
 /**
-  * @brief This function handles DMA2 stream3 global interrupt.
-  */
+ * @brief This function handles DMA2 stream3 global interrupt.
+ */
 void DMA2_Stream3_IRQHandler(void)
 {
   HAL_DMA_IRQHandler(&hdma_spi1_tx);

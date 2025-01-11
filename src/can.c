@@ -1,17 +1,18 @@
 
 #include "can.h"
+// https://istarik.ru/blog/stm32/159.html  ВАЖНАЯ СТАТЬЯ !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 CAN_HandleTypeDef hcan1;
 
-/* CAN1 init function */
+/* CAN1 init function */ 
 void MX_CAN1_Init(void)
 {
   hcan1.Instance = CAN1;
-  hcan1.Init.Prescaler = 16; // Настройка скорости ( делитель при частоте APB1)
+  hcan1.Init.Prescaler = 3; // Настройка скорости ( делитель при частоте APB1)
   hcan1.Init.Mode = CAN_MODE_NORMAL;
   hcan1.Init.SyncJumpWidth = CAN_SJW_1TQ;
-  hcan1.Init.TimeSeg1 = CAN_BS1_1TQ;
-  hcan1.Init.TimeSeg2 = CAN_BS2_1TQ;
+  hcan1.Init.TimeSeg1 = CAN_BS1_11TQ;
+  hcan1.Init.TimeSeg2 = CAN_BS2_2TQ;
   hcan1.Init.TimeTriggeredMode = DISABLE;
   hcan1.Init.AutoBusOff = DISABLE;
   hcan1.Init.AutoWakeUp = DISABLE;
@@ -141,7 +142,8 @@ void CAN_ConfigFilters(void)
 void CAN_Notifications_Init(void)
 {
   // Активация прерываний на передачу и прием в FIFO0
-  if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING |
+  if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_TX_MAILBOX_EMPTY |
+                                               CAN_IT_RX_FIFO0_MSG_PENDING |
                                                CAN_IT_RX_FIFO1_MSG_PENDING |
                                                CAN_IT_ERROR_WARNING) != HAL_OK)
   {
@@ -212,4 +214,28 @@ void CAN_Start()
     // Запуск не удался
     Error_Handler();
   }
+}
+
+void CAN_SendMessage(uint8_t *data, uint8_t length)
+{
+  CAN_TxHeaderTypeDef txHeader;
+  uint32_t txMailbox;
+
+  // Настраиваем заголовок сообщения
+  txHeader.StdId = 0x123; // Стандартный идентификатор (11 бит)
+  txHeader.ExtId = 0x00;  // Расширенный идентификатор (не используется)
+  txHeader.RTR = CAN_RTR_DATA;
+  txHeader.IDE = CAN_ID_STD;
+  txHeader.DLC = length; // Длина данных (0-8 байт)
+  txHeader.TransmitGlobalTime = DISABLE;
+
+  HAL_GPIO_WritePin(Led1_GPIO_Port, Led1_Pin, GPIO_PIN_SET); // Инвертирование состояния выхода.
+  // Отправляем сообщение
+  if (HAL_CAN_AddTxMessage(&hcan1, &txHeader, data, &txMailbox) != HAL_OK)
+  {
+    // Ошибка отправки
+    printf("Error CAN_SendMessage \r\n");
+    Error_Handler();
+  }
+  HAL_GPIO_WritePin(Led1_GPIO_Port, Led1_Pin, GPIO_PIN_RESET); // Инвертирование состояния выхода.
 }

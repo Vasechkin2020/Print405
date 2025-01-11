@@ -42,9 +42,9 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim7); // Таймер для моторов шаговых для датчиков
 
   MX_CAN1_Init();
-  CAN_ConfigFilters();                                               // Настройка фильтров
-  CAN_Notifications_Init();// Активация прерываний
-  CAN_Start(); // Запуск CAN
+  CAN_ConfigFilters();      // Настройка фильтров
+  CAN_Notifications_Init(); // Активация прерываний
+  CAN_Start();              // Запуск CAN
 
   initFirmware();
   printf("\r\n *** printBIM.ru 2025. ***\r\n");
@@ -52,35 +52,40 @@ int main(void)
 
   initSPI_slave(); //
 
-  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 800);// Запуск ШИМ на канале TIM8_CH1
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  HAL_Delay(10000);
-  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
-  for (int i = 0; i < 5; i++)
-  {
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 2100);// Запуск ШИМ на канале TIM8_CH1
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-    HAL_Delay(3000);
+  // __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 800);// Запуск ШИМ на канале TIM8_CH1
+  // HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  // HAL_Delay(10000);
+  // HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+  // for (int i = 0; i < 5; i++)
+  // {
+  //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 2100);// Запуск ШИМ на канале TIM8_CH1
+  //   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  //   HAL_Delay(3000);
 
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1550);// Запуск ШИМ на канале TIM8_CH1
-    //HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);// Остановка ШИМ на канале TIM8_CH1
-    HAL_Delay(100);
+  //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1550);// Запуск ШИМ на канале TIM8_CH1
+  //   //HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);// Остановка ШИМ на канале TIM8_CH1
+  //   HAL_Delay(100);
 
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 800);
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-    HAL_Delay(3000);
-    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1550);// Запуск ШИМ на канале TIM8_CH1
-    HAL_Delay(100);
-  }
+  //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 800);
+  //   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  //   HAL_Delay(3000);
+  //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1550);// Запуск ШИМ на канале TIM8_CH1
+  //   HAL_Delay(100);
+  // }
+
   HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+
+  uint8_t data[8] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
 
   timeSpi = millis(); // Запоминаем время начала цикла
   DEBUG_PRINTF("%lli LOOP !!!!!!!!!!!!!!!!!!!!!!!!!!! \r\n", timeSpi);
 
   while (1)
   {
-    workingSPI();   // Отработка действий по обмену по шине SPI
-    workingTimer(); // Отработка действий по таймеру в 1, 50, 60 милисекунд
+    CAN_SendMessage(data, 8); // Отправляем данные
+    HAL_Delay(1000);          // Задержка 1 секунда
+    // workingSPI();             // Отработка действий по обмену по шине SPI
+    workingTimer();           // Отработка действий по таймеру в 1, 50, 60 милисекунд
 
     // DEBUG_PRINTF("float %.2f Привет \n", 3.1415625);
     // HAL_GPIO_TogglePin(Led1_GPIO_Port, Led1_Pin);     // Инвертирование состояния выхода.

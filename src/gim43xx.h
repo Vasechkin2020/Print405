@@ -73,31 +73,45 @@ void ackData(uint8_t *data)
     (void)speed;
     (void)torque;
 }
+// Колбек на отправку сообщения
+void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    // Данные успешно переданы
+    // HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12); // Мигание светодиодом на успешную отправку
+    DEBUG_PRINTF("Data send HAL_CAN_TxMailbox0CompleteCallback. \r\n");
+}
 
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
     CAN_RxHeaderTypeDef rxHeader;
     uint8_t rxData[8];
 
     // Считывание сообщения из FIFO0
-    if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rxHeader, rxData) == HAL_OK) {
+    if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rxHeader, rxData) == HAL_OK)
+    {
         // Обработка данных
         HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12); // Пример: переключение светодиода
-    } else {
+    }
+    else
+    {
         // Обработка ошибок
         Error_Handler();
     }
 }
 
-
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
     CAN_RxHeaderTypeDef rxHeader;
     uint8_t rxData[8];
 
     // Считывание сообщения из FIFO1
-    if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &rxHeader, rxData) == HAL_OK) {
+    if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &rxHeader, rxData) == HAL_OK)
+    {
         // Обработка данных
         HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_13); // Пример: переключение другого светодиода
-    } else {
+    }
+    else
+    {
         // Обработка ошибок
         Error_Handler();
     }
@@ -117,15 +131,5 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan) {
 //         Error_Handler();
 //     }
 // }
-
-
-
-
-
-
-
-
-
-
 
 #endif
