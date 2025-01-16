@@ -34,7 +34,7 @@ int main(void)
 
   MX_USART1_UART_Init();
 
-  MX_TIM3_Init();
+  // MX_TIM3_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
 
@@ -52,13 +52,18 @@ int main(void)
 
   initSPI_slave(); //
 
-  // __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 800);// Запуск ШИМ на канале TIM8_CH1
+  // __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1635); // Запуск ШИМ на канале TIM8_CH1
   // HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-  // HAL_Delay(10000);
+  // HAL_Delay(5000);
+  // __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1200); // Запуск ШИМ на канале TIM8_CH1
+  // HAL_Delay(40);
+  // __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1600); // Запуск ШИМ на канале TIM8_CH1
+  // HAL_Delay(5000000);
+
   // HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
   // for (int i = 0; i < 5; i++)
   // {
-  //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 2100);// Запуск ШИМ на канале TIM8_CH1
+  //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1700);// Запуск ШИМ на канале TIM8_CH1
   //   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
   //   HAL_Delay(3000);
 
@@ -66,26 +71,87 @@ int main(void)
   //   //HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);// Остановка ШИМ на канале TIM8_CH1
   //   HAL_Delay(100);
 
-  //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 800);
+  //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1400);
   //   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
   //   HAL_Delay(3000);
   //   __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 1550);// Запуск ШИМ на канале TIM8_CH1
   //   HAL_Delay(100);
   // }
 
-  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
+  // HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 
-  uint8_t data[8] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+  uint8_t data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+  uint8_t stop[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFD};
+  uint8_t start[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFC};
+
+  uint8_t speedMode[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFA};
+  uint8_t torqueMode[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xF9};
+  uint8_t positionMode[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFB};
+
+  uint8_t setZero[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFE};
 
   timeSpi = millis(); // Запоминаем время начала цикла
+  HAL_Delay(2000);
   DEBUG_PRINTF("%lli LOOP !!!!!!!!!!!!!!!!!!!!!!!!!!! \r\n", timeSpi);
 
+  CAN_SendMessage(stop, 8); // Отправляем данные
+  printf("%u CAN_SendMessage stop1\n", millis());
+  HAL_Delay(2000);
+  // CAN_SendMessage(positionMode, 8); // Отправляем данные
+  // printf("%u CAN_SendMessage positionMode\n", millis());
+  // HAL_Delay(2000);
+  // CAN_SendMessage(speedMode, 8); // Отправляем данные
+  // printf("%u CAN_SendMessage speedMode\n", millis());
+  // HAL_Delay(200);
+  CAN_SendMessage(torqueMode, 8); // Отправляем данные
+  printf("%u CAN_SendMessage torqueMode\n", millis());
+  HAL_Delay(200);
+  // setData(0, 20, 1, 1, 0, data);
+  // CAN_SendMessage(data, 8);  // Отправляем данные
+  HAL_Delay(100);
+  CAN_SendMessage(start, 8); // Отправляем данные
+  printf("%lu CAN_SendMessage start1\n", millis());
+  HAL_Delay(100);
+  // CAN_SendMessage(setZero, 8); // Отправляем данные
+  HAL_Delay(100);
+  // CAN_SendMessage(stop, 8); // Отправляем данные
+  // printf("%lu CAN_SendMessage stop2\n", millis());
+  // HAL_Delay(5000000);
+  // HAL_Delay(500);
+  // CAN_SendMessage(setZero, 8); // Отправляем данные
+  // HAL_Delay(500);
+  // CAN_SendMessage(setZero, 8); // Отправляем данные
+  // HAL_Delay(1000);
+  bool flagStop = true;
+  float pos = 0;
   while (1)
   {
-    CAN_SendMessage(data, 8); // Отправляем данные
-    HAL_Delay(1000);          // Задержка 1 секунда
+    if (millis() < 10000)
+    {
+      setData(0, 0, 500, 5, -2.5, data);
+      if (pos < 0.4)
+      {
+        pos = pos + 0.1;
+      }
+      else
+      {
+        pos = pos - 0.1;
+      }
+      printf("pos= %.2f \n", pos);
+      CAN_SendMessage(data, 8); // Отправляем данные
+      HAL_Delay(500);           // Задержка 1 секунда
+      printf("data \n");
+    }
+    else if (flagStop)
+    {
+      CAN_SendMessage(stop, 8); // Отправляем данные
+      flagStop = false;
+      printf("STOP !!! \n");
+    }
+
     // workingSPI();             // Отработка действий по обмену по шине SPI
-    workingTimer();           // Отработка действий по таймеру в 1, 50, 60 милисекунд
+    workingTimer(); // Отработка действий по таймеру в 1, 50, 60 милисекунд
 
     // DEBUG_PRINTF("float %.2f Привет \n", 3.1415625);
     // HAL_GPIO_TogglePin(Led1_GPIO_Port, Led1_Pin);     // Инвертирование состояния выхода.

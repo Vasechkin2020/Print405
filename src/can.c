@@ -222,7 +222,7 @@ void CAN_SendMessage(uint8_t *data, uint8_t length)
   uint32_t txMailbox;
 
   // Настраиваем заголовок сообщения
-  txHeader.StdId = 0x123; // Стандартный идентификатор (11 бит)
+  txHeader.StdId = 0x003; // Стандартный идентификатор (11 бит)
   txHeader.ExtId = 0x00;  // Расширенный идентификатор (не используется)
   txHeader.RTR = CAN_RTR_DATA;
   txHeader.IDE = CAN_ID_STD;
