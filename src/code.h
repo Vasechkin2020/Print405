@@ -121,8 +121,9 @@ void workingTimer() // Отработка действий по таймеру �
 // Собираем нужные данные и пишем в структуру на отправку
 void collect_Data_for_Send()
 {
-    /*
     Print2Data_send.id++;
+    // Print2Data_send.id = 0x1A;
+    /*
     Print2Data_send.pinMotorEn = HAL_GPIO_ReadPin(En_Motor_GPIO_Port, En_Motor_Pin); // Считываем состояние пина драйверов
 
     for (int i = 0; i < 4; i++) // Информация по моторам всегда
@@ -158,6 +159,7 @@ void collect_Data_for_Send()
     }
 
     Print2Data_send.bno055 = bno055;
+    */
     Print2Data_send.spi = spi;
 
     uint32_t cheksum_send = 0;                                          // Считаем контрольную сумму отправляемой структуры
@@ -167,7 +169,7 @@ void collect_Data_for_Send()
         cheksum_send += adr_structura[i]; // Побайтно складываем все байты структуры кроме последних 4 в которых переменная в которую запишем результат
     }
     Print2Data_send.cheksum = cheksum_send;
-    // Print2Data_send.cheksum = 0x0101;
+    // Print2Data_send.cheksum = 0x1A1B1C1D;
 
     // DEBUG_PRINTF(" id= %0#6lX cheksum_send =  %0#6lX \n", Print2Data_send.id, Print2Data_send.cheksum);
 
@@ -183,7 +185,7 @@ void collect_Data_for_Send()
     if (statusGetState == HAL_SPI_STATE_READY)
 
     {
-        // DEBUG_PRINTF("SPI_GetState ok.");
+        //DEBUG_PRINTF("SPI_GetState ok.\n");
         ;
     }
     else
@@ -207,7 +209,6 @@ void collect_Data_for_Send()
             DEBUG_PRINTF("2HAL_SPI_GetState ERROR %u \n", statusGetState);
     }
     // *******************************************************
-    */
 }
 
 // Отработка пришедших команд. Изменение скорости, траектории и прочее
@@ -302,7 +303,7 @@ void workingSPI()
         // DEBUG_PRINTF ("In = %#x %#x %#x %#x \r\n",rxBuffer[0],rxBuffer[1],rxBuffer[2],rxBuffer[3]);
         // DEBUG_PRINTF ("Out = %#x %#x %#x %#x \r\n",txBuffer[0],txBuffer[1],txBuffer[2],txBuffer[3]);
         // DEBUG_PRINTF("+\n");
-        // processingDataReceive(); // Обработка пришедших данных после состоявшегося обмена  !!! Подумать почему меняю данные даже если они с ошибкой, потом по факту когда будет все работать
+        processingDataReceive(); // Обработка пришедших данных после состоявшегося обмена  !!! Подумать почему меняю данные даже если они с ошибкой, потом по факту когда будет все работать
         // DEBUG_PRINTF(" mode= %i \n",Data2Print_receive.controlMotor.mode);
         // executeDataReceive(); // Выполнение пришедших команд
 
@@ -313,7 +314,7 @@ void workingSPI()
         //     DEBUG_PRINTF(" %x", txBuffer[i]);
         // }
         // DEBUG_PRINTF("\n");
-        // collect_Data_for_Send(); // Собираем данные в структуре для отправки на момент прихода команлы, но БЕЗ учета команды.До исполнения команды.
+        collect_Data_for_Send(); // Собираем данные в структуре для отправки на момент прихода команлы, но БЕЗ учета команды.До исполнения команды.
 
         // DEBUG_PRINTF(" angle0= %.2f angle1= %.2f angle2= %.2f angle3= %.2f", Data2Print_receive.angle[0], Data2Print_receive.angle[1], Data2Print_receive.angle[2], Data2Print_receive.angle[3] );
 

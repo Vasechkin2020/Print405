@@ -14,7 +14,7 @@ volatile bool flag_data = false; // Флаг что данные передал�
 // #define BUFFER_SIZE 10 // Размер буфера который передаем. Следить что-бы структуры не превышали этот размер Кратно 32 делать
 // uint8_t txBuffer[BUFFER_SIZE] = {0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xA0}; // = "Hello from STM32 Slave"; // Передающий буфер
 
-#define BUFFER_SIZE 32              // Размер буфера который передаем. Следить что-бы структуры не превышали этот размер Кратно 32 делать
+#define BUFFER_SIZE 24              // Размер буфера который передаем. Следить что-бы структуры не превышали этот размер Кратно 32 делать
 uint8_t txBuffer[BUFFER_SIZE] = {0}; // = "Hello from STM32 Slave"; // Передающий буфер
 uint8_t rxBuffer[BUFFER_SIZE];       // Принимающий буфер
 
@@ -164,14 +164,14 @@ void processingDataReceive()
     if (cheksum_receive != Data2Print_receive_temp.cheksum || Data2Print_receive_temp.cheksum == 0) // Стравниваю что сам посчитал и что прислали. Не сходится или ноль - значит плохие данные
     {
         spi.bed++; // Плохие данные
-        DEBUG_PRINTF("Data Err. ");
+        DEBUG_PRINTF("IN Data Err. \n");
     }
     else
     {
         Data2Print_receive = Data2Print_receive_temp; // Хорошие данные копируем
-        // DEBUG_PRINTF("Data OK. ");
+        DEBUG_PRINTF("IN Data OK. \n");
     }
-    DEBUG_PRINTF(" All= %lu bed= %lu \r\n", spi.all, spi.bed);
+    // DEBUG_PRINTF(" All= %lu bed= %lu \r\n", spi.all, spi.bed);
     // DEBUG_PRINTF("b1 = %#X b2 = %#X b3 = %#X b4 = %#X %.4f = ", StructTestPSpi_temp.byte0, StructTestPSpi_temp.byte1, StructTestPSpi_temp.byte2, StructTestPSpi_temp.byte3, StructTestPSpi_temp.fff);
     //  for (int i = 0; i < sizeof(Data2Print_receive); i++)
     //  {

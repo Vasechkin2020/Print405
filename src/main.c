@@ -41,12 +41,12 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim6); // Таймер для общего цикла
   HAL_TIM_Base_Start_IT(&htim7); // Таймер для моторов шаговых для датчиков
 
-  MX_CAN1_Init();
-  CAN_ConfigFilters();      // Настройка фильтров
-  CAN_Notifications_Init(); // Активация прерываний
-  CAN_Start();              // Запуск CAN
+  // MX_CAN1_Init();
+  // CAN_ConfigFilters();      // Настройка фильтров
+  // CAN_Notifications_Init(); // Активация прерываний
+  // CAN_Start();              // Запуск CAN
 
-  initFirmware();
+  // initFirmware();
   printf("\r\n *** printBIM.ru 2025. ***\r\n");
   // printf("Firmware gen %hu ver %hu laser %hu motor %.1f debug %hu\n", Print2Data_send.firmware.gen, Print2Data_send.firmware.ver,Print2Data_send.firmware.laser,Print2Data_send.firmware.motor,Print2Data_send.firmware.debug);
 
@@ -80,41 +80,41 @@ int main(void)
 
   // HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 
-  uint8_t data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  // uint8_t data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-  uint8_t stop[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFD};
-  uint8_t start[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFC};
+  // uint8_t stop[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFD};
+  // uint8_t start[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFC};
 
-  uint8_t speedMode[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFA};
-  uint8_t torqueMode[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xF9};
-  uint8_t positionMode[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFB};
+  // uint8_t speedMode[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFA};
+  // uint8_t torqueMode[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xF9};
+  // uint8_t positionMode[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFB};
 
-  uint8_t setZero[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFE};
+  // uint8_t setZero[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFE};
 
   timeSpi = millis(); // Запоминаем время начала цикла
-  HAL_Delay(2000);
+  // HAL_Delay(2000);
   DEBUG_PRINTF("%lli LOOP !!!!!!!!!!!!!!!!!!!!!!!!!!! \r\n", timeSpi);
 
-  CAN_SendMessage(stop, 8); // Отправляем данные
-  printf("%u CAN_SendMessage stop1\n", millis());
-  HAL_Delay(2000);
-  // CAN_SendMessage(positionMode, 8); // Отправляем данные
-  // printf("%u CAN_SendMessage positionMode\n", millis());
+  // CAN_SendMessage(stop, 8); // Отправляем данные
+  // printf("%u CAN_SendMessage stop1\n", millis());
   // HAL_Delay(2000);
-  // CAN_SendMessage(speedMode, 8); // Отправляем данные
-  // printf("%u CAN_SendMessage speedMode\n", millis());
+  // // CAN_SendMessage(positionMode, 8); // Отправляем данные
+  // // printf("%u CAN_SendMessage positionMode\n", millis());
+  // // HAL_Delay(2000);
+  // // CAN_SendMessage(speedMode, 8); // Отправляем данные
+  // // printf("%u CAN_SendMessage speedMode\n", millis());
+  // // HAL_Delay(200);
+  // CAN_SendMessage(torqueMode, 8); // Отправляем данные
+  // printf("%u CAN_SendMessage torqueMode\n", millis());
   // HAL_Delay(200);
-  CAN_SendMessage(torqueMode, 8); // Отправляем данные
-  printf("%u CAN_SendMessage torqueMode\n", millis());
-  HAL_Delay(200);
-  // setData(0, 20, 1, 1, 0, data);
-  // CAN_SendMessage(data, 8);  // Отправляем данные
-  HAL_Delay(100);
-  CAN_SendMessage(start, 8); // Отправляем данные
-  printf("%lu CAN_SendMessage start1\n", millis());
-  HAL_Delay(100);
-  // CAN_SendMessage(setZero, 8); // Отправляем данные
-  HAL_Delay(100);
+  // // setData(0, 20, 1, 1, 0, data);
+  // // CAN_SendMessage(data, 8);  // Отправляем данные
+  // HAL_Delay(100);
+  // CAN_SendMessage(start, 8); // Отправляем данные
+  // printf("%lu CAN_SendMessage start1\n", millis());
+  // HAL_Delay(100);
+  // // CAN_SendMessage(setZero, 8); // Отправляем данные
+  // HAL_Delay(100);
   // CAN_SendMessage(stop, 8); // Отправляем данные
   // printf("%lu CAN_SendMessage stop2\n", millis());
   // HAL_Delay(5000000);
@@ -127,30 +127,30 @@ int main(void)
   float pos = 0;
   while (1)
   {
-    if (millis() < 10000)
-    {
-      setData(0, 0, 500, 5, -2.5, data);
-      if (pos < 0.4)
-      {
-        pos = pos + 0.1;
-      }
-      else
-      {
-        pos = pos - 0.1;
-      }
-      printf("pos= %.2f \n", pos);
-      CAN_SendMessage(data, 8); // Отправляем данные
-      HAL_Delay(500);           // Задержка 1 секунда
-      printf("data \n");
-    }
-    else if (flagStop)
-    {
-      CAN_SendMessage(stop, 8); // Отправляем данные
-      flagStop = false;
-      printf("STOP !!! \n");
-    }
+    // if (millis() < 10000)
+    // {
+    //   setData(0, 0, 500, 5, -2.5, data);
+    //   if (pos < 0.4)
+    //   {
+    //     pos = pos + 0.1;
+    //   }
+    //   else
+    //   {
+    //     pos = pos - 0.1;
+    //   }
+    //   printf("pos= %.2f \n", pos);
+    //   CAN_SendMessage(data, 8); // Отправляем данные
+    //   HAL_Delay(500);           // Задержка 1 секунда
+    //   printf("data \n");
+    // }
+    // else if (flagStop)
+    // {
+    //   CAN_SendMessage(stop, 8); // Отправляем данные
+    //   flagStop = false;
+    //   printf("STOP !!! \n");
+    // }
 
-    // workingSPI();             // Отработка действий по обмену по шине SPI
+    workingSPI();             // Отработка действий по обмену по шине SPI
     workingTimer(); // Отработка действий по таймеру в 1, 50, 60 милисекунд
 
     // DEBUG_PRINTF("float %.2f Привет \n", 3.1415625);
