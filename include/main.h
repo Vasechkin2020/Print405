@@ -50,10 +50,13 @@ extern "C"
     // Структура получаемых данных от Data к контроллеру Print
     struct SControlPrint
     {
-        uint32_t status;    // Текущий режим работы 0 - не печатем, 1 печатаем
-        uint32_t mode;      // Текущий режим работы какеи сопла печатют
-        uint32_t intensity; // ИНтенсивность печати. Сколько раз прыскаем на 1 мм
+        uint32_t mode;      // Текущий режим работы. 0 - Выполняем команды по status 1- посылаем на CAN данные по position, velocity, torque
+        uint32_t status;    // Текущий режим работы. 0 - не печатем, 1 печатаем.
+        uint32_t intensity; // Интенсивность печати. Сколько раз прыскаем на 1 мм
         float speed;        // Текущая скорость движения при которой надо печатать. От нее зависит интервал между выпрыскиванием чернил
+        float position;     // Позиция задаваемая по CAN
+        float velocity;     // Скорость задаваемая по CAN
+        float torque;       // Момент задаваемая по CAN
     };
 
     // Структура получаемых данных из Data к Print
@@ -87,12 +90,21 @@ extern "C"
     };
     struct SSpi spi; // Переменная где все данные по обмену
 
+    // Структура состояния мотора GIM4305 4310
+    struct SGim43
+    {
+        float position;
+        float velocity;
+        float torque;
+    };
+
     // Структура в которой все главные переменные передаюся на высокий уровень от Print к Data
     struct Struct_Print2Data
     {
-        uint32_t id;               // id команды
+        uint32_t id;                    // id команды
         struct SFirmwarePrint firmware; // Версия прошики и использованного оборудования
-        struct SSpi spi;           // Структура по состоянию обмена по шине SPI
+        struct SGim43 gim43;
+        struct SSpi spi; // Структура по состоянию обмена по шине SPI
 
         uint32_t cheksum; // Контрольная сумма данных в структуре
     };

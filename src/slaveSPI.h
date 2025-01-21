@@ -14,7 +14,7 @@ volatile bool flag_data = false; // Флаг что данные передал�
 // #define BUFFER_SIZE 10 // Размер буфера который передаем. Следить что-бы структуры не превышали этот размер Кратно 32 делать
 // uint8_t txBuffer[BUFFER_SIZE] = {0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xA0}; // = "Hello from STM32 Slave"; // Передающий буфер
 
-#define BUFFER_SIZE 24              // Размер буфера который передаем. Следить что-бы структуры не превышали этот размер Кратно 32 делать
+#define BUFFER_SIZE 36              // Размер буфера который передаем. Следить что-бы структуры не превышали этот размер Кратно 32 делать
 uint8_t txBuffer[BUFFER_SIZE] = {0}; // = "Hello from STM32 Slave"; // Передающий буфер
 uint8_t rxBuffer[BUFFER_SIZE];       // Принимающий буфер
 
@@ -110,10 +110,12 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
 }
 
 extern void collect_Data_for_Send();
+extern uint32_t millis();
 
 // Начальная инициализция для SPI
 void initSPI_slave()
 {
+    timeSpi = millis(); // Запоминаем время начала
     collect_Data_for_Send(); // Собираем данные для начальной отправки
 
     // HAL_SPI_DMAStop(&hspi1);
