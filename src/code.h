@@ -50,56 +50,18 @@ uint32_t millis()
 // Собираем нужные данные и пишем в структуру на отправку
 void collect_Data_for_Send()
 {
+    uint32_t cheksum_send = 0;                                          // Считаем контрольную сумму отправляемой структуры
     Print2Data_send.id++;
     // Print2Data_send.firmware  Заполняем при старете
     Print2Data_send.spi = spi;
     Print2Data_send.gim43 = dataGim43;
-
-    uint32_t cheksum_send = 0;                                          // Считаем контрольную сумму отправляемой структуры
     unsigned char *adr_structura = (unsigned char *)(&Print2Data_send); // Запоминаем адрес начала структуры. Используем для побайтной передачи
     for (int i = 0; i < sizeof(Print2Data_send) - 4; i++)
     {
         cheksum_send += adr_structura[i]; // Побайтно складываем все байты структуры кроме последних 4 в которых переменная в которую запишем результат
     }
     Print2Data_send.cheksum = cheksum_send;
-
-    // Print2Data_send.cheksum = 0x1A1B1C1D;
-    // DEBUG_PRINTF(" id= %0#6lX cheksum_send =  %0#6lX \n", Print2Data_send.id, Print2Data_send.cheksum);
-    // Print2Data_send.cheksum = measureCheksum_Print2Data(Print2Data_send); // Вычисляем контрольную сумму структуры и пишем ее значение в последний элемент
-
-    // копировнаие данных из моей уже заполненной структуры в буфер для DMA
-    memset(txBuffer, 0, sizeof(txBuffer));                                          // Очистка буфера
-    struct Struct_Print2Data *copy_txBuffer = (struct Struct_Print2Data *)txBuffer; // Создаем переменную в которую пишем адрес буфера в нужном формате
-    *copy_txBuffer = Print2Data_send;                                               // Копируем данные
-
-    // *******************************************************
-    statusGetState = HAL_SPI_GetState(&hspi1);
-    if (statusGetState == HAL_SPI_STATE_READY)
-    {
-        // DEBUG_PRINTF("SPI_GetState ok.\n");
-        ;
-    }
-    else
-        DEBUG_PRINTF("SPI_GetState ERROR %u ", statusGetState);
-
-    // HAL_SPI_DMAStop(&hspi1);
-    HAL_SPI_Abort(&hspi1);
-    status = HAL_SPI_TransmitReceive_DMA(&hspi1, txBuffer, rxBuffer, BUFFER_SIZE); // // Перезапуск функции для следующего обмена// Запуск обмена данными по SPI с использованием DMA                                       // Копируем из структуры данные в пвмять начиная с адреса в котором начинаяется буфер для передачи
-    if (status == HAL_OK)
-    {
-        // DEBUG_PRINTF("DMA OK \n");
-        ;
-    }
-    else
-    {
-        DEBUG_PRINTF("DMA ERROR \n");
-        statusGetState = HAL_SPI_GetState(&hspi1);
-        if (statusGetState == HAL_SPI_STATE_READY)
-            DEBUG_PRINTF("2SPI готов к передаче данных.\n");
-        else
-            DEBUG_PRINTF("2HAL_SPI_GetState ERROR %u \n", statusGetState);
-    }
-    // *******************************************************
+    DataForSPI = Print2Data_send; // Копируем в специальную переменную.
 }
 
 // Отработка пришедших команд. Исполнение.

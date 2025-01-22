@@ -110,6 +110,7 @@ extern "C"
     };
 
     struct Struct_Print2Data Print2Data_send;                            // Тут все переменные его характеризующие на низком уровне
+    struct Struct_Print2Data DataForSPI;                                 // Переменная специальная для передачи без ошибки по SPI
     static const uint16_t size_structura_send = sizeof(Print2Data_send); // Размер структуры с данными которые передаем
     // static const uint16_t max_size_stuct = (size_structura_receive < size_structura_send) ? size_structura_send : size_structura_receive; // Какая из структур больше
 

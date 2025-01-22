@@ -12,6 +12,8 @@
 #define C_MIN 0
 #define C_MAX 4095
 
+void setData(float position, float velocity, float kp, float kd, float current, uint8_t *data);
+
 uint8_t buffCAN[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 uint8_t zero[8] = {0x80, 0x00, 0x80, 0x00, 0x00, 0x00, 0x08, 0x00};//80 00 80 00 00 00 08 00  // Нулевая скорость, позиция, момент
 
@@ -265,38 +267,38 @@ void testPWM_Gim43()
 void testCAN_Gim43()
 {
 
-    HAL_Delay(2000);
-
-    CAN_SendMessage(stop, 8); // Отправляем данные
-    printf("%u CAN_SendMessage stop1\n", millis());
-    HAL_Delay(2000);
-    // CAN_SendMessage(positionMode, 8); // Отправляем данные
-    // printf("%u CAN_SendMessage positionMode\n", millis());
     // HAL_Delay(2000);
-    // CAN_SendMessage(speedMode, 8); // Отправляем данные
-    // printf("%u CAN_SendMessage speedMode\n", millis());
+
+    // CAN_SendMessage(stop, 8); // Отправляем данные
+    // printf("%lu CAN_SendMessage stop1\n", millis());
+    // HAL_Delay(2000);
+    // // CAN_SendMessage(positionMode, 8); // Отправляем данные
+    // // printf("%u CAN_SendMessage positionMode\n", millis());
+    // // HAL_Delay(2000);
+    // // CAN_SendMessage(speedMode, 8); // Отправляем данные
+    // // printf("%u CAN_SendMessage speedMode\n", millis());
+    // // HAL_Delay(200);
+    // CAN_SendMessage(torqueMode, 8); // Отправляем данные
+    // printf("%lu CAN_SendMessage torqueMode\n", millis());
     // HAL_Delay(200);
-    CAN_SendMessage(torqueMode, 8); // Отправляем данные
-    printf("%u CAN_SendMessage torqueMode\n", millis());
-    HAL_Delay(200);
-    // setData(0, 20, 1, 1, 0, data);
-    // CAN_SendMessage(data, 8);  // Отправляем данные
-    HAL_Delay(100);
-    CAN_SendMessage(start, 8); // Отправляем данные
-    printf("%lu CAN_SendMessage start1\n", millis());
-    HAL_Delay(100);
+    // // setData(0, 20, 1, 1, 0, data);
+    // // CAN_SendMessage(data, 8);  // Отправляем данные
+    // HAL_Delay(100);
+    // CAN_SendMessage(start, 8); // Отправляем данные
+    // printf("%lu CAN_SendMessage start1\n", millis());
+    // HAL_Delay(100);
+    // // CAN_SendMessage(setZero, 8); // Отправляем данные
+    // HAL_Delay(100);
+    // CAN_SendMessage(stop, 8); // Отправляем данные
+    // printf("%lu CAN_SendMessage stop2\n", millis());
+    // HAL_Delay(5000000);
+    // HAL_Delay(500);
     // CAN_SendMessage(setZero, 8); // Отправляем данные
-    HAL_Delay(100);
-    CAN_SendMessage(stop, 8); // Отправляем данные
-    printf("%lu CAN_SendMessage stop2\n", millis());
-    HAL_Delay(5000000);
-    HAL_Delay(500);
-    CAN_SendMessage(setZero, 8); // Отправляем данные
-    HAL_Delay(500);
-    CAN_SendMessage(setZero, 8); // Отправляем данные
-    HAL_Delay(1000);
-    bool flagStop = true;
-    float pos = 0;
+    // HAL_Delay(500);
+    // CAN_SendMessage(setZero, 8); // Отправляем данные
+    // HAL_Delay(1000);
+    // bool flagStop = true;
+    // float pos = 0;
 }
 
 // void loop_gim43()

@@ -14,7 +14,7 @@ volatile bool flag_data = false; // Флаг что данные передал�
 // #define BUFFER_SIZE 10 // Размер буфера который передаем. Следить что-бы структуры не превышали этот размер Кратно 32 делать
 // uint8_t txBuffer[BUFFER_SIZE] = {0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xA0}; // = "Hello from STM32 Slave"; // Передающий буфер
 
-#define BUFFER_SIZE 36              // Размер буфера который передаем. Следить что-бы структуры не превышали этот размер Кратно 32 делать
+#define BUFFER_SIZE 36               // Размер буфера который передаем. Следить что-бы структуры не превышали этот размер Кратно 32 делать
 uint8_t txBuffer[BUFFER_SIZE] = {0}; // = "Hello from STM32 Slave"; // Передающий буфер
 uint8_t rxBuffer[BUFFER_SIZE];       // Принимающий буфер
 
@@ -54,21 +54,51 @@ uint32_t measureCheksum_Print2Data(const struct Struct_Print2Data *structura_)
 // Обработчик прерывания при завершении обмена данных по DMA
 void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi)
 {
+    HAL_StatusTypeDef status;
+    HAL_SPI_StateTypeDef statusGetState;
+
     if (hspi == &hspi1)
     {
-        // HAL_GPIO_WritePin(Analiz_GPIO_Port, Analiz_Pin, GPIO_PIN_SET); // Инвертирование состояния выхода.
-        flag_data = true; // Флаг что обменялись данными. По этому флагу происходит обработка полученных данных и подготовка данных к следующей передаче
         // DEBUG_PRINTF("-up-\n");
-        // HAL_GPIO_TogglePin(Led2_GPIO_Port, Led2_Pin);                    // Инвертирование состояния выхода.
-        spi.all++; // Считаем сколько было обменов данными всего
-        // HAL_GPIO_WritePin(Analiz_GPIO_Port, Analiz_Pin, GPIO_PIN_RESET); // Инвертирование состояния выхода.
+        flag_data = true; // Флаг что обменялись данными. По этому флагу происходит обработка полученных данных и подготовка данных к следующей передаче
+        spi.all++;        // Считаем сколько было обменов данными всего
 
-        // //копировнаие данных из моей уже заполненной структуры в буфер для DMA
-        // memset(txBuffer, 0, sizeof(txBuffer)); // Очистка буфера
-        // struct Struct_Print2Data *copy_txBuffer = (struct Struct_Print2Data *)txBuffer; // Создаем переменную в которую пишем адрес буфера в нужном формате
-        // *copy_txBuffer = Print2Data_send; // Копируем данные
+        // копированаие данных из моей уже заполненной структуры в буфер для DMA
+        memset(txBuffer, 0, sizeof(txBuffer));                                          // Очистка буфера
+        struct Struct_Print2Data *copy_txBuffer = (struct Struct_Print2Data *)txBuffer; // Создаем переменную в которую пишем адрес буфера в нужном формате
 
-        // HAL_SPI_TransmitReceive_DMA(&hspi1, txBuffer, rxBuffer, BUFFER_SIZE); // // Перезапуск функции для следующего обмена// Запуск обмена данными по SPI с использованием DMA
+        /* Копировать перменную Print2Data_send в которой собрали данные и посчитали контрольную сумму не правильно. Почему-то данные которые закладываем для SPI потом меняются,
+         а в буфере сразу пишется 2 байта и потом контрольная сумма не совпадает. Почему так непонятно, ведь я больше нигде данные не меняю. Я не понял и сделал серез дополнительную перменную.вроде работает. )
+         */
+        *copy_txBuffer = DataForSPI; // Копируем специальную переменную в которую записали подготовленные данные.
+
+        statusGetState = HAL_SPI_GetState(&hspi1);
+        if (statusGetState == HAL_SPI_STATE_READY)
+        {
+            // DEBUG_PRINTF("SPI_GetState ok.\n");
+            ;
+        }
+        else
+            DEBUG_PRINTF("SPI_GetState ERROR %u ", statusGetState);
+
+        // HAL_SPI_DMAStop(&hspi1);
+        // HAL_SPI_Abort(&hspi1);
+        status = HAL_SPI_TransmitReceive_DMA(&hspi1, txBuffer, rxBuffer, BUFFER_SIZE); // // Перезапуск функции для следующего обмена// Запуск обмена данными по SPI с использованием DMA                                       // Копируем из структуры данные в пвмять начиная с адреса в котором начинаяется буфер для передачи
+        if (status == HAL_OK)
+        {
+            // DEBUG_PRINTF("DMA OK \n");
+            ;
+        }
+        else
+        {
+            DEBUG_PRINTF("DMA ERROR \n");
+            statusGetState = HAL_SPI_GetState(&hspi1);
+            if (statusGetState == HAL_SPI_STATE_READY)
+                DEBUG_PRINTF("2SPI готов к передаче данных.\n");
+            else
+                DEBUG_PRINTF("2HAL_SPI_GetState ERROR %u \n", statusGetState);
+        }
+
     }
 }
 
@@ -115,47 +145,19 @@ extern uint32_t millis();
 // Начальная инициализция для SPI
 void initSPI_slave()
 {
-    timeSpi = millis(); // Запоминаем время начала
-    collect_Data_for_Send(); // Собираем данные для начальной отправки
-
+    timeSpi = millis();                                                   // Запоминаем время начала
+    collect_Data_for_Send();                                              // Собираем данные для начальной отправки
     // HAL_SPI_DMAStop(&hspi1);
-    // HAL_SPI_TransmitReceive_DMA(&hspi1, txBuffer, rxBuffer, BUFFER_SIZE); // Указываем какие данные отправлять и куда записывать полученные
-
-    // const uint16_t size_structura_receive = sizeof(Data2Print_receive); // Размер структуры с данными которые получаем
-    // const uint16_t size_structura_send = sizeof(Print2Data_send);       // Размер структуры с данными которые передаем
-    // uint16_t max_size_stuct;
-    // max_size_stuct = 0;
-    // if (size_structura_receive < size_structura_send)
-    //     max_size_stuct = size_structura_send;
-    // else
-    //     max_size_stuct = size_structura_receive; // Какая из структур больше
+    HAL_SPI_TransmitReceive_DMA(&hspi1, txBuffer, rxBuffer, BUFFER_SIZE); // // Перезапуск функции для следующего обмена// Запуск обмена данными по SPI с использованием DMA. Указываем какие данные отправлять и куда записывать полученные
 }
 
 // Обработка по флагу в main пришедших данных после срабатывания прерывания что обмен состоялся
 void processingDataReceive()
 {
-    // struct STest
-    // {
-    //     uint8_t byte0;
-    //     uint8_t byte1;
-    //     uint8_t byte2;
-    //     uint8_t byte3;
-    //     float fff;
-    // };
-
-    // struct STest StructTestPSpi;
-
-    // struct STest StructTestPSpi_temp;                       // Экземпляр структуры получаемых данных временный, пока не посчитаем контроьную сумму и убедимся что данные хорошие
-    // struct STest *copy_rxBuffer = (struct STest *)rxBuffer; // Создаем переменную в которую пишем адрес буфера в нужном формате
-    // StructTestPSpi_temp = *copy_rxBuffer;                   // Копируем из этой перемнной данные в мою структуру
-
+    uint32_t cheksum_receive = 0; // = measureCheksum(Data2Print_receive_temp);             // Считаем контрольную сумму пришедшей структуры
     struct Struct_Data2Print Data2Print_receive_temp;                               // Экземпляр структуры получаемых данных временный, пока не посчитаем контроьную сумму и убедимся что данные хорошие
     struct Struct_Data2Print *copy_rxBuffer = (struct Struct_Data2Print *)rxBuffer; // Создаем переменную в которую пишем адрес буфера в нужном формате
     Data2Print_receive_temp = *copy_rxBuffer;                                       // Копируем из этой перемнной данные в мою структуру
-
-    uint32_t cheksum_receive = 0; // = measureCheksum(Data2Print_receive_temp);             // Считаем контрольную сумму пришедшей структуры
-
-    // unsigned char *adr_structura = (unsigned char *)(&StructTestPSpi_temp); // Запоминаем адрес начала структуры. Используем для побайтной передачи
 
     unsigned char *adr_structura = (unsigned char *)(&Data2Print_receive_temp); // Запоминаем адрес начала структуры. Используем для побайтной передачи
     for (int i = 0; i < sizeof(Data2Print_receive_temp) - 4; i++)
