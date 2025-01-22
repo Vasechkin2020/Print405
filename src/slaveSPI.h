@@ -171,7 +171,7 @@ void processingDataReceive()
     else
     {
         Data2Print_receive = Data2Print_receive_temp; // Хорошие данные копируем
-        DEBUG_PRINTF("IN Data OK. \n");
+        // DEBUG_PRINTF("IN Data OK. \n");
     }
     // DEBUG_PRINTF(" All= %lu bed= %lu \r\n", spi.all, spi.bed);
     // DEBUG_PRINTF("b1 = %#X b2 = %#X b3 = %#X b4 = %#X %.4f = ", StructTestPSpi_temp.byte0, StructTestPSpi_temp.byte1, StructTestPSpi_temp.byte2, StructTestPSpi_temp.byte3, StructTestPSpi_temp.fff);

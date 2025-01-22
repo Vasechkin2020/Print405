@@ -12,10 +12,6 @@
 
 //********************************* ПЕРЕМЕННЫЕ ***************************************************************************
 
-bool flag_timer_10millisec = false;
-bool flag_timer_50millisec = false;
-bool flag_timer_1sec = false;
-
 bool flagCAN = false;
 uint32_t timeCAN = 0;
 
@@ -34,93 +30,21 @@ HAL_SPI_StateTypeDef statusGetState;
 bool flagTimeOut = true;       // Флаг таймаута при обрыве связи по SPI
 bool flagCallBackUart = false; // Флаг для указания нужно ли отрабатывать в колбеке  или обраьотка с самой функции
 
-extern volatile uint32_t millisCounter;
+extern volatile uint64_t millisCounter;
 extern struct SGim43 dataGim43;
 //********************************* ФУНКЦИИ ***************************************************************************
-// Функция для возврата количества миллисекунд
-uint32_t millis()
-{
-    return millisCounter;
-}
 
 void timer7() // Обработчик прерывания таймера TIM7
 {
 }
 void timer6() // Обработчик прерывания таймера TIM6	1 раз в 1 милисекунду
 {
-    static int count_timer_10millisec = 0; // Счетчик для запуска обработки движения моторов в лупе по флагу
-    static int count_timer_50millisec = 0; // Счетчик для запуска каждые 50 милисекунд
-    static int count_timer_1sec = 0;       // Счетчик для запуска
-
-    count_timer_10millisec++;
-    count_timer_50millisec++;
-    count_timer_1sec++;
-
     millisCounter++; // Увеличиваем счетчик миллисекунд
-
-    //  каждые 10 милисекунд
-    if (count_timer_10millisec >= 10)
-    {
-        count_timer_10millisec = 0;
-        // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_10);
-        flag_timer_10millisec = true;
-    }
-    // каждые 50 милисекунд
-    if (count_timer_50millisec >= 50)
-    {
-        count_timer_50millisec = 0;
-        flag_timer_50millisec = true;
-    }
-    // 1 seconds
-    if (count_timer_1sec >= 1000)
-    {
-        count_timer_1sec = 0;
-        flag_timer_1sec = true;
-    }
 }
-
-void workingTimer() // Отработка действий по таймеру в 1, 50, 60 милисекунд
+// Функция для возврата количества миллисекунд
+uint32_t millis()
 {
-    // HAL_Delay(); // Пауза 500 миллисекунд.
-    //----------------------------- 10 миллисекунд --------------------------------------
-    if (flag_timer_10millisec)
-    {
-        flag_timer_10millisec = false;
-        // HAL_GPIO_TogglePin(Led1_GPIO_Port, Led1_Pin);             // Инвертирование состояния выхода.
-        // HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_10); // Инвертирование состояния выхода.
-    }
-    //----------------------------- 50 миллисекунд --------------------------------------
-    if (flag_timer_50millisec)
-    {
-        flag_timer_50millisec = false;
-        // DEBUG_PRINTF("50msec %li \r\n", millis());
-        //  flag_data = true; // Есть новые данные по шине // РУчной вариант имитации пришедших данных с частотой 20Гц
-        // HAL_GPIO_TogglePin(Led1_GPIO_Port, Led1_Pin); // Инвертирование состояния выхода.
-    }
-
-    //----------------------------- 1 секунда --------------------------------------
-    if (flag_timer_1sec) // Вызывается каждую секунду
-    {
-        flag_timer_1sec = false;
-        // statusGetState = HAL_SPI_GetState(&hspi1);
-        // if (statusGetState == HAL_SPI_STATE_READY)
-        // {
-        //     DEBUG_PRINTF("Timer SPI. ПЕРЕЗАПУСК ПО ТАЙМЕРУ. ЭТО ОШИБКА\n");
-        //     HAL_SPI_Abort(&hspi1);
-        //     HAL_SPI_DMAStop(&hspi1);
-        //     HAL_SPI_TransmitReceive_DMA(&hspi1, txBuffer, rxBuffer, BUFFER_SIZE); // // Перезапуск функции для следующего обмена// Запуск обмена данными по SPI с использованием DMA
-        // }
-        // else
-        // {
-        //     // DEBUG_PRINTF("Timer HAL_SPI_STATE_BUSY_TX_RX %u \n", statusGetState);
-        // }
-        // HAL_GPIO_TogglePin(Led1_GPIO_Port, Led1_Pin); // Инвертирование состояния выхода.
-        printf("%li \r\n", millis());
-        //  uint8_t UART1_rxBuffer[4] = {0xAA,0xFF,0xAA,0xFF};
-        //   uint8_t UART1_rxBuffer[1] = {0x56}; //Запрос версии "V"
-        //   uint8_t UART1_rxBuffer[1] = {0x4F}; // Включить лазер "O"
-        //   uint8_t UART1_rxBuffer[1] = {0x43}; // Выключить лазер "C"
-    }
+    return millisCounter;
 }
 
 // Собираем нужные данные и пишем в структуру на отправку
@@ -181,34 +105,39 @@ void collect_Data_for_Send()
 // Отработка пришедших команд. Исполнение.
 void executeDataReceive()
 {
-    DEBUG_PRINTF("executeDataReceive... mode= %lu status= %lu \n", Data2Print_receive.controlPrint.mode, Data2Print_receive.controlPrint.status);
+    DEBUG_PRINTF("--- executeDataReceive... mode= %lu status= %lu \n", Data2Print_receive.controlPrint.mode, Data2Print_receive.controlPrint.status);
+    static uint32_t statusPred = 0; // Предыдущий статус
     //  0 - Выполняем команды по status 1- посылаем на CAN данные по position, velocity, torque
-    if (Data2Print_receive.controlPrint.mode = 0)
+    if (Data2Print_receive.controlPrint.mode == 0 && !flagCAN) // Если режим работы по командам и не взведен флаг что исполняем команду
     {
-        if (Data2Print_receive.controlPrint.status == 0)
+        if (Data2Print_receive.controlPrint.status == 0 && statusPred != Data2Print_receive.controlPrint.status) // Если статус поменялся
         {
-            setData(0, 0, 0, 0, 0, data); // Отводим маркер быстро и запускаем флаг что надо остановить обратное двичжение через несколько милисекунд
-            CAN_SendMessage(data, 8);     // Отправляем данные
+            setData(0, 0, 0, 0, -1.5, buffCAN); // Отводим маркер быстро и запускаем флаг что надо остановить обратное движение через несколько милисекунд
+            // CAN_SendMessage(zero, 8);     // Отправляем данные
+            // memcpy(buffCAN, stop, 8);   // Копируем 8 байт из массива в буфер
             flagCAN = true;
             timeCAN = millis();
-            DEBUG_PRINTF("mode 0 \n");
+            DEBUG_PRINTF("++++++ mode 0 \n");
         }
         if (Data2Print_receive.controlPrint.status == 1)
         {
-            setData(0, 0, 0, 0, 0, data); // Давим с определенным моментом пока не будет команды отмены.
-            CAN_SendMessage(data, 8);     // Отправляем данные
-            DEBUG_PRINTF("mode 1 \n");
+            setData(0, 0, 0, 0, Data2Print_receive.controlPrint.torque, buffCAN); // Давим с определенным моментом пока не будет команды отмены.
+            DEBUG_PRINTF("======= mode 1 \n");
+            // CAN_SendMessage(zero, 8);     // Отправляем данные
         }
+        statusPred = Data2Print_receive.controlPrint.status;
     }
 }
 
 // Отработка действий по шине CAN
 void workingCAN()
 {
-    if (flagCAN && millis() > timeCAN + 40) // Если есть флаг и прогло более милиисекунд то сбрасываем флаг и исполняем
+    if (flagCAN && millis() > timeCAN + 50) // Если есть флаг и прогло более милиисекунд то сбрасываем флаг и исполняем
     {
         flagCAN = false;
-        CAN_SendMessage(stop, 8); // Останавливаем мотор
+        memcpy(buffCAN, zero, 8);   // Копируем 8 байт из массива в буфер
+        DEBUG_PRINTF("*** mode NEW \n");
+        // CAN_SendMessage(stop, 8); // Останавливаем мотор
     }
 }
 // Отработка действий по обмену по шине SPI
@@ -263,4 +192,39 @@ void initFirmware()
     Print2Data_send.firmware.test = 0x1A;
     printf("Firmware gen %hu ver %hu debug %hu\n", Print2Data_send.firmware.gen, Print2Data_send.firmware.ver, Print2Data_send.firmware.debug);
 }
+
+// Исполнение с периодичностью
+void time_DataGim43(uint32_t time_)
+{
+    static uint32_t time = 0; //
+    if ((millis() - time) >= time_)
+    {
+        // printf("timeCAN %lu msec \n", millis());
+        DEBUG_PRINTF("Gim43 position = %.2f velocity = %.2f torque = %.2f \n", dataGim43.position, dataGim43.velocity, dataGim43.torque);
+        time = millis();
+    }
+}
+
+void time_CAN(uint32_t time_)
+{
+    static uint32_t time = 0; //
+    if ((millis() - time) >= time_)
+    {
+        CAN_SendMessage(buffCAN, 8); // 
+        // printf("timeCAN %lu msec \n", millis());
+        time = millis();
+    }
+}
+
+void time_LED(uint32_t time_)
+{
+    static uint32_t time = 0; //
+    if ((millis() - time) >= 1000)
+    {
+      setData(0, 0, 0, 0, 0, buffCAN); // Давим с определенным моментом пока не будет команды отмены.
+      printf("print_modul %lu msec | spi.all = %lu spi.bed= %lu | \n", millis(),spi.all,spi.bed);
+      time = millis();
+    }
+}
+
 #endif /*CODE_H*/

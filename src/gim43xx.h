@@ -12,7 +12,8 @@
 #define C_MIN 0
 #define C_MAX 4095
 
-uint8_t data[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+uint8_t buffCAN[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+uint8_t zero[8] = {0x80, 0x00, 0x80, 0x00, 0x00, 0x00, 0x08, 0x00};//80 00 80 00 00 00 08 00  // Нулевая скорость, позиция, момент
 
 uint8_t stop[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFD};
 uint8_t start[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFC};
@@ -43,6 +44,13 @@ void initGim43()
     // CAN_SendMessage(speedMode, 8); // Отправляем данные
     // printf("%u CAN_SendMessage speedMode\n", millis());
     // HAL_Delay(100);
+    setData(0, 0, 0, 0, 0, buffCAN); // Давим с определенным моментом пока не будет команды отмены.
+    CAN_SendMessage(zero, 8); // Отправляем данные
+    printf("%lu CAN_SendMessage zero !\n", millis());
+    HAL_Delay(100);
+    CAN_SendMessage(start, 8); // Отправляем данные
+    printf("%lu CAN_SendMessage start !\n", millis());
+    HAL_Delay(100);
 }
 
 uint16_t float_to_uint(float v, float v_min, float v_max, uint32_t width)
@@ -81,7 +89,7 @@ void setData(float position, float velocity, float kp, float kd, float current, 
     // printf("s_Kd_int= %u ", s_Kd_int);
     // printf("current= %f | ", current);
     // printf("f_current= %f | ", f_current);
-    // printf("s_c_int= %u | ", s_c_int);
+    // printf("s_c_int= %u | \n", s_c_int);
     // Запись в массив данных для оправки по CAN шине / 0x80 0 0x93 0xb3 0x33 0x33 0x3a 0/ 0x80 0 0xa7 0x66 0x66 0x99 0x9c 0
     data[0] = s_p_int >> 8;
     data[1] = s_p_int & 0xFF;
@@ -106,9 +114,9 @@ void setData(float position, float velocity, float kp, float kd, float current, 
 
     // for (int i = 0; i < 8; i++)
     // {
-    //     printf("%#x ", data[i]);
+    //     DEBUG_PRINTF("%02X ", data[i]);
     // }
-    // printf("\r\n");
+    // DEBUG_PRINTF("\r\n");
 }
 typedef struct
 {
@@ -149,10 +157,10 @@ CAN_ACK_Message parse_CAN_ACK(uint8_t *data)
     dataGim43.velocity = message.velocity;
     dataGim43.torque = message.torque;
 
-    printf("host_id= %u ", host_id);
-    printf("position= %.2f ", message.position);
-    printf("velocity= %.2f ", message.velocity);
-    printf("torque= %.2f \n", message.torque);
+    // printf("host_id= %u ", host_id);
+    // printf("position= %.2f ", message.position);
+    // printf("velocity= %.2f ", message.velocity);
+    // printf("torque= %.2f \n", message.torque);
     return message;
 }
 
@@ -254,42 +262,42 @@ void testPWM_Gim43()
     HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 }
 
-// void testCAN_Gim43()
-// {
+void testCAN_Gim43()
+{
 
-// HAL_Delay(2000);
+    HAL_Delay(2000);
 
-// CAN_SendMessage(stop, 8); // Отправляем данные
-// printf("%u CAN_SendMessage stop1\n", millis());
-// HAL_Delay(2000);
-// // CAN_SendMessage(positionMode, 8); // Отправляем данные
-// // printf("%u CAN_SendMessage positionMode\n", millis());
-// // HAL_Delay(2000);
-// // CAN_SendMessage(speedMode, 8); // Отправляем данные
-// // printf("%u CAN_SendMessage speedMode\n", millis());
-// // HAL_Delay(200);
-// CAN_SendMessage(torqueMode, 8); // Отправляем данные
-// printf("%u CAN_SendMessage torqueMode\n", millis());
-// HAL_Delay(200);
-// // setData(0, 20, 1, 1, 0, data);
-// // CAN_SendMessage(data, 8);  // Отправляем данные
-// HAL_Delay(100);
-// CAN_SendMessage(start, 8); // Отправляем данные
-// printf("%lu CAN_SendMessage start1\n", millis());
-// HAL_Delay(100);
-// // CAN_SendMessage(setZero, 8); // Отправляем данные
-// HAL_Delay(100);
-// CAN_SendMessage(stop, 8); // Отправляем данные
-// printf("%lu CAN_SendMessage stop2\n", millis());
-// HAL_Delay(5000000);
-// HAL_Delay(500);
-// CAN_SendMessage(setZero, 8); // Отправляем данные
-// HAL_Delay(500);
-// CAN_SendMessage(setZero, 8); // Отправляем данные
-// HAL_Delay(1000);
-// bool flagStop = true;
-// float pos = 0;
-// }
+    CAN_SendMessage(stop, 8); // Отправляем данные
+    printf("%u CAN_SendMessage stop1\n", millis());
+    HAL_Delay(2000);
+    // CAN_SendMessage(positionMode, 8); // Отправляем данные
+    // printf("%u CAN_SendMessage positionMode\n", millis());
+    // HAL_Delay(2000);
+    // CAN_SendMessage(speedMode, 8); // Отправляем данные
+    // printf("%u CAN_SendMessage speedMode\n", millis());
+    // HAL_Delay(200);
+    CAN_SendMessage(torqueMode, 8); // Отправляем данные
+    printf("%u CAN_SendMessage torqueMode\n", millis());
+    HAL_Delay(200);
+    // setData(0, 20, 1, 1, 0, data);
+    // CAN_SendMessage(data, 8);  // Отправляем данные
+    HAL_Delay(100);
+    CAN_SendMessage(start, 8); // Отправляем данные
+    printf("%lu CAN_SendMessage start1\n", millis());
+    HAL_Delay(100);
+    // CAN_SendMessage(setZero, 8); // Отправляем данные
+    HAL_Delay(100);
+    CAN_SendMessage(stop, 8); // Отправляем данные
+    printf("%lu CAN_SendMessage stop2\n", millis());
+    HAL_Delay(5000000);
+    HAL_Delay(500);
+    CAN_SendMessage(setZero, 8); // Отправляем данные
+    HAL_Delay(500);
+    CAN_SendMessage(setZero, 8); // Отправляем данные
+    HAL_Delay(1000);
+    bool flagStop = true;
+    float pos = 0;
+}
 
 // void loop_gim43()
 // {

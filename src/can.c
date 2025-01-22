@@ -218,6 +218,12 @@ void CAN_Start()
 
 void CAN_SendMessage(uint8_t *data, uint8_t length)
 {
+  // for (int i = 0; i < 8; i++)
+  // {
+  //   DEBUG_PRINTF(" %#x",data[i]);
+  // }
+  // DEBUG_PRINTF("\n");
+  
   CAN_TxHeaderTypeDef txHeader;
   uint32_t txMailbox;
 

@@ -19,7 +19,7 @@
 #include "gim43xx.h"
 
 void SystemClock_Config(void);
-volatile uint32_t millisCounter = 0;
+volatile uint64_t millisCounter = 0;
 
 int main(void)
 {
@@ -45,22 +45,25 @@ int main(void)
   // HAL_Delay(1000);
   printf("\r\n *** printModul *** printBIM.ru *** 2025 *** \r\n");
   initFirmware();
-  
+
   initSPI_slave(); //
 
-  initGim43();              // Установка режима работы мотора
+  initGim43(); // Установка режима работы мотора
   // testPWM_Gim43();
   // testCAN_Gim43();
-
-
+  // HAL_Delay(50000);
   printf("Start LOOP ! \r\n");
   while (1)
   {
     workingSPI(); // Отработка действий по обмену по шине SPI
     workingCAN(); // Отработка действий по шине CAN
+    time_LED(1000);      // МИгание светодиодом с заданной периодичностью
+    time_CAN(10);       // Оправка CAN запроса с заданной периодичностью
+    time_DataGim43(1000); // Печать позиции мотора с заданной периодичностью
 
-    workingTimer(); // Отработка действий по таймеру в 1, 50, 60 милисекунд
+
     // loop_gim43();
+    // memcpy(buffCAN, stop, 8); // Копируем 8 байт из массива в буфер
   }
 }
 
