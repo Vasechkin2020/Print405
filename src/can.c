@@ -2,6 +2,8 @@
 #include "can.h"
 // https://istarik.ru/blog/stm32/159.html  ВАЖНАЯ СТАТЬЯ !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+extern bool flagUseCan; //Флаг что можно использовать шину
+
 CAN_HandleTypeDef hcan1;
 
 /* CAN1 init function */ 
@@ -243,5 +245,6 @@ void CAN_SendMessage(uint8_t *data, uint8_t length)
     printf("Error CAN_SendMessage \r\n");
     Error_Handler();
   }
+  flagUseCan = false; // Шина занята и использовать нельзя
   HAL_GPIO_WritePin(Led1_GPIO_Port, Led1_Pin, GPIO_PIN_RESET); // Инвертирование состояния выхода.
 }

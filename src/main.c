@@ -17,6 +17,8 @@
 #include "code.h"
 #include "slaveSPI.h"
 #include "gim43xx.h"
+// #include "gmd39Driver.h"
+#include "steadywin.h"
 
 void SystemClock_Config(void);
 volatile uint64_t millisCounter = 0;
@@ -43,7 +45,7 @@ int main(void)
   CAN_Start();              // Запуск CAN
 
   // HAL_Delay(1000);
-  printf("\r\n *** printModul *** printBIM.ru *** 2025 *** \r\n");
+  printf("\r\n *** Print *** printBIM.ru *** 2025 *** \r\n");
   initFirmware();
 
   initSPI_slave(); //
@@ -57,13 +59,12 @@ int main(void)
   {
     workingSPI(); // Отработка действий по обмену по шине SPI
     workingCAN(); // Отработка действий по шине CAN
-    time_LED(1000);      // МИгание светодиодом с заданной периодичностью
-    time_CAN(10);       // Оправка CAN запроса с заданной периодичностью
-    // time_DataGim43(1000); // Печать позиции мотора с заданной периодичностью
-
+    time_CAN(10); // Оправка CAN запроса с заданной периодичностью
 
     // loop_gim43();
     // memcpy(buffCAN, stop, 8); // Копируем 8 байт из массива в буфер
+    time_DataGim43(500); // Печать позиции мотора с заданной периодичностью
+    time_LED(1000); // МИгание светодиодом с заданной периодичностью и вывод лога по SPI обмену
   }
 }
 

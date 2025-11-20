@@ -67,24 +67,25 @@ void collect_Data_for_Send()
 // Отработка пришедших команд. Исполнение.
 void executeDataReceive()
 {
-    DEBUG_PRINTF("--- executeDataReceive... mode= %lu status= %lu \n", Data2Print_receive.controlPrint.mode, Data2Print_receive.controlPrint.status);
     static uint32_t statusPred = 0; // Предыдущий статус
     //  0 - Выполняем команды по status 1- посылаем на CAN данные по position, velocity, torque
     if (Data2Print_receive.controlPrint.mode == 0 && !flagCAN) // Если режим работы по командам и не взведен флаг что исполняем команду
     {
         if (Data2Print_receive.controlPrint.status == 0 && statusPred != Data2Print_receive.controlPrint.status) // Если статус поменялся
         {
-            setData(0, 0, 0, 0, -1.5, buffCAN); // Отводим маркер быстро и запускаем флаг что надо остановить обратное движение через несколько милисекунд
+            setData(0, 0, 0, 0, Data2Print_receive.controlPrint.torque, buffCAN); // Отводим маркер быстро и запускаем флаг что надо остановить обратное движение через несколько милисекунд
             // CAN_SendMessage(zero, 8);     // Отправляем данные
             // memcpy(buffCAN, stop, 8);   // Копируем 8 байт из массива в буфер
             flagCAN = true;
             timeCAN = millis();
-            DEBUG_PRINTF("++++++ mode 0 \n");
+            // DEBUG_PRINTF("++++++ mode 0 \n");
+            DEBUG_PRINTF("--- executeDataReceive... mode= %lu status= %lu \n", Data2Print_receive.controlPrint.mode, Data2Print_receive.controlPrint.status);
         }
-        if (Data2Print_receive.controlPrint.status == 1)
+        if (Data2Print_receive.controlPrint.status == 1 && statusPred != Data2Print_receive.controlPrint.status)
         {
             setData(0, 0, 0, 0, Data2Print_receive.controlPrint.torque, buffCAN); // Давим с определенным моментом пока не будет команды отмены.
-            DEBUG_PRINTF("======= mode 1 \n");
+            // DEBUG_PRINTF("======= mode 1 \n");
+            DEBUG_PRINTF("--- executeDataReceive... mode= %lu status= %lu \n", Data2Print_receive.controlPrint.mode, Data2Print_receive.controlPrint.status);
             // CAN_SendMessage(zero, 8);     // Отправляем данные
         }
         statusPred = Data2Print_receive.controlPrint.status;
@@ -97,8 +98,9 @@ void workingCAN()
     if (flagCAN && millis() > timeCAN + 50) // Если есть флаг и прогло более милиисекунд то сбрасываем флаг и исполняем
     {
         flagCAN = false;
-        memcpy(buffCAN, zero, 8);   // Копируем 8 байт из массива в буфер
-        DEBUG_PRINTF("*** mode NEW \n");
+        // memcpy(buffCAN, zero, 8);   // Копируем 8 байт из массива в буфер
+        setData(0, 0, 0, 0, 0, buffCAN); // Нулевые все значения
+        DEBUG_PRINTF("*** Zero command past 50 msec\n");
         // CAN_SendMessage(stop, 8); // Останавливаем мотор
     }
 }
@@ -161,8 +163,7 @@ void time_DataGim43(uint32_t time_)
     static uint32_t time = 0; //
     if ((millis() - time) >= time_)
     {
-        // printf("timeCAN %lu msec \n", millis());
-        DEBUG_PRINTF("Gim43 position = %.2f velocity = %.2f torque = %.2f \n", dataGim43.position, dataGim43.velocity, dataGim43.torque);
+        DEBUG_PRINTF("    %lu Gim43 position = %+7.2f velocity = %+7.2f torque = %+7.2f \n", millis(), dataGim43.position, dataGim43.velocity, dataGim43.torque);
         time = millis();
     }
 }
@@ -170,7 +171,7 @@ void time_DataGim43(uint32_t time_)
 void time_CAN(uint32_t time_)
 {
     static uint32_t time = 0; //
-    if ((millis() - time) >= time_)
+    if ((millis() - time) >= time_ && flagUseCan) // Если прошло время и шина свободна
     {
         CAN_SendMessage(buffCAN, 8); // 
         // printf("timeCAN %lu msec \n", millis());
@@ -183,8 +184,8 @@ void time_LED(uint32_t time_)
     static uint32_t time = 0; //
     if ((millis() - time) >= 1000)
     {
-      setData(0, 0, 0, 0, 0, buffCAN); // Давим с определенным моментом пока не будет команды отмены.
-      printf("print_modul %lu msec | spi.all = %lu spi.bed= %lu | \n", millis(),spi.all,spi.bed);
+    //   setData(0, 0, 0, 0, 0, buffCAN); // Давим с определенным моментом пока не будет команды отмены.
+      DEBUG_PRINTF("%lu msec | spi.all = %lu spi.bed= %lu\n", millis(),spi.all,spi.bed);
       time = millis();
     }
 }

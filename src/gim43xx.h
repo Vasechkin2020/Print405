@@ -27,6 +27,7 @@ uint8_t positionMode[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFB};
 uint8_t setZero[8] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xFE};
 
 struct SGim43 dataGim43;
+bool flagUseCan = true; //Флаг что можно использовать шину
 
 extern uint32_t millis();
 
@@ -47,9 +48,10 @@ void initGim43()
     // printf("%u CAN_SendMessage speedMode\n", millis());
     // HAL_Delay(100);
     setData(0, 0, 0, 0, 0, buffCAN); // Давим с определенным моментом пока не будет команды отмены.
-    CAN_SendMessage(zero, 8); // Отправляем данные
-    printf("%lu CAN_SendMessage zero !\n", millis());
-    HAL_Delay(100);
+    CAN_SendMessage(buffCAN, 8); // Отправляем данные
+    // CAN_SendMessage(zero, 8); // Отправляем данные
+    // printf("%lu CAN_SendMessage zero !\n", millis());
+    // HAL_Delay(100);
     CAN_SendMessage(start, 8); // Отправляем данные
     printf("%lu CAN_SendMessage start !\n", millis());
     HAL_Delay(100);
@@ -92,6 +94,7 @@ void setData(float position, float velocity, float kp, float kd, float current, 
     // printf("current= %f | ", current);
     // printf("f_current= %f | ", f_current);
     // printf("s_c_int= %u | \n", s_c_int);
+    
     // Запись в массив данных для оправки по CAN шине / 0x80 0 0x93 0xb3 0x33 0x33 0x3a 0/ 0x80 0 0xa7 0x66 0x66 0x99 0x9c 0
     data[0] = s_p_int >> 8;
     data[1] = s_p_int & 0xFF;
@@ -174,6 +177,7 @@ void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
     // DEBUG_PRINTF("HAL_CAN_TxMailbox0CompleteCallback. \r\n");
 }
 
+// это callback, который вызывается библиотекой HAL (Hardware Abstraction Layer) STM32 в тот момент, когда в FIFO 0 контроллера CAN появляется хотя бы одно новое принятое сообщение, и это сообщение ещё не было прочитано.
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     CAN_RxHeaderTypeDef rxHeader;
@@ -190,6 +194,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
         // }
         // printf("\r\n");
         parse_CAN_ACK(rxData);
+        flagUseCan = true; // Флаг что можно использовать шину снова
         // HAL_GPIO_TogglePin(GPIOD, GPIO_PIN_12); // Пример: переключение светодиода
     }
     else
