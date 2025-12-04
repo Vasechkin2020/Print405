@@ -172,9 +172,9 @@ CAN_ACK_Message parse_CAN_ACK(uint8_t *data)
     uint8_t host_id = data[0];                                    // Извлечение Host ID
     message.host_id = host_id;
 
-    uint16_t position = (data[1] << 8) | data[2];                 // Текущее положение
-    uint16_t velocity = (data[3] << 4) | ((data[4] & 0xF0) >> 4); // Текущая скорость
-    uint16_t torque = ((data[4] & 0x0F) << 8) | data[5];          // Текущий момент
+    // uint16_t position = (data[1] << 8) | data[2];                 // Текущее положение
+    // uint16_t velocity = (data[3] << 4) | ((data[4] & 0xF0) >> 4); // Текущая скорость
+    // uint16_t torque = ((data[4] & 0x0F) << 8) | data[5];          // Текущий момент
 
 /*
     // Вычисляем итоговые значения

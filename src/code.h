@@ -61,7 +61,9 @@ void collect_Data_for_Send()
         cheksum_send += adr_structura[i]; // Побайтно складываем все байты структуры кроме последних 4 в которых переменная в которую запишем результат
     }
     Print2Data_send.cheksum = cheksum_send;
-    DataForSPI = Print2Data_send; // Копируем в специальную переменную.
+     __disable_irq();             // 1. Выключаем прерывания (тишина!)
+    DataForSPI = Print2Data_send; // 2. Копируем данные (теперь никто не помешает)
+    __enable_irq();              // 3. Включаем прерывания обратно
 }
 
 // Отработка пришедших команд. Исполнение.
