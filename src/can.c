@@ -2,11 +2,11 @@
 #include "can.h"
 // https://istarik.ru/blog/stm32/159.html  ВАЖНАЯ СТАТЬЯ !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-extern bool flagUseCan; //Флаг что можно использовать шину
+extern bool flagUseCan; // Флаг что можно использовать шину
 
 CAN_HandleTypeDef hcan1;
 
-/* CAN1 init function */ 
+/* CAN1 init function */
 void MX_CAN1_Init(void)
 {
   hcan1.Instance = CAN1;
@@ -225,12 +225,12 @@ void CAN_SendMessage(uint8_t *data, uint8_t length)
   //   DEBUG_PRINTF(" %#x",data[i]);
   // }
   // DEBUG_PRINTF("\n");
-  
+
   CAN_TxHeaderTypeDef txHeader;
   uint32_t txMailbox;
 
   // Настраиваем заголовок сообщения
-  txHeader.StdId = 0x003; // Стандартный идентификатор (11 бит)
+  txHeader.StdId = 0x003; // Стандартный идентификатор (11 бит) // ЭТО ВРОДЕ ID мотора. меняется через rs485 в настройках
   txHeader.ExtId = 0x00;  // Расширенный идентификатор (не используется)
   txHeader.RTR = CAN_RTR_DATA;
   txHeader.IDE = CAN_ID_STD;
@@ -245,6 +245,14 @@ void CAN_SendMessage(uint8_t *data, uint8_t length)
     printf("Error CAN_SendMessage \r\n");
     Error_Handler();
   }
-  flagUseCan = false; // Шина занята и использовать нельзя
+  flagUseCan = false;                                          // Шина занята и использовать нельзя
   HAL_GPIO_WritePin(Led1_GPIO_Port, Led1_Pin, GPIO_PIN_RESET); // Инвертирование состояния выхода.
+
+  // // После отправки CAN-сообщения:
+  // printf("CAN TX: ");
+  // for (int i = 0; i < 8; i++)
+  // {
+  //   printf("%02X ", data[i]);
+  // }
+  // printf("\n");
 }

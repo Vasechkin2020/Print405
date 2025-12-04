@@ -79,13 +79,13 @@ void executeDataReceive()
             flagCAN = true;
             timeCAN = millis();
             // DEBUG_PRINTF("++++++ mode 0 \n");
-            DEBUG_PRINTF("--- executeDataReceive... mode= %lu status= %lu \n", Data2Print_receive.controlPrint.mode, Data2Print_receive.controlPrint.status);
+            DEBUG_PRINTF("--- execute mode= %lu status= %lu \n", Data2Print_receive.controlPrint.mode, Data2Print_receive.controlPrint.status);
         }
         if (Data2Print_receive.controlPrint.status == 1 && statusPred != Data2Print_receive.controlPrint.status)
         {
             setData(0, 0, 0, 0, Data2Print_receive.controlPrint.torque, buffCAN); // Давим с определенным моментом пока не будет команды отмены.
             // DEBUG_PRINTF("======= mode 1 \n");
-            DEBUG_PRINTF("--- executeDataReceive... mode= %lu status= %lu \n", Data2Print_receive.controlPrint.mode, Data2Print_receive.controlPrint.status);
+            DEBUG_PRINTF("--- execute mode= %lu status= %lu \n", Data2Print_receive.controlPrint.mode, Data2Print_receive.controlPrint.status);
             // CAN_SendMessage(zero, 8);     // Отправляем данные
         }
         statusPred = Data2Print_receive.controlPrint.status;
@@ -95,10 +95,9 @@ void executeDataReceive()
 // Отработка действий по шине CAN
 void workingCAN()
 {
-    if (flagCAN && millis() > timeCAN + 50) // Если есть флаг и прогло более милиисекунд то сбрасываем флаг и исполняем
+    if (flagCAN && millis() > timeCAN + 150) // Если есть флаг и прогло более милиисекунд то сбрасываем флаг и исполняем
     {
         flagCAN = false;
-        // memcpy(buffCAN, zero, 8);   // Копируем 8 байт из массива в буфер
         setData(0, 0, 0, 0, 0, buffCAN); // Нулевые все значения
         DEBUG_PRINTF("*** Zero command past 50 msec\n");
         // CAN_SendMessage(stop, 8); // Останавливаем мотор
@@ -163,7 +162,7 @@ void time_DataGim43(uint32_t time_)
     static uint32_t time = 0; //
     if ((millis() - time) >= time_)
     {
-        DEBUG_PRINTF("    %lu Gim43 position = %+7.2f velocity = %+7.2f torque = %+7.2f \n", millis(), dataGim43.position, dataGim43.velocity, dataGim43.torque);
+        DEBUG_PRINTF("    %8lu Gim43 position = %+7.2f velocity = %+7.2f torque = %+7.2f | SPI all = %7lu / bed = %7lu \n", millis(), dataGim43.position, dataGim43.velocity, dataGim43.torque, spi.all, spi.bed);
         time = millis();
     }
 }

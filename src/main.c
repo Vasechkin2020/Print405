@@ -18,7 +18,7 @@
 #include "slaveSPI.h"
 #include "gim43xx.h"
 // #include "gmd39Driver.h"
-#include "steadywin.h"
+// #include "steadywin.h"
 
 void SystemClock_Config(void);
 volatile uint64_t millisCounter = 0;
@@ -53,7 +53,7 @@ int main(void)
   initGim43(); // Установка режима работы мотора
   // testPWM_Gim43();
   // testCAN_Gim43();
-  // HAL_Delay(50000);
+  // HAL_Delay(5000);
   printf("Start LOOP ! \r\n");
   while (1)
   {
@@ -63,8 +63,8 @@ int main(void)
 
     // loop_gim43();
     // memcpy(buffCAN, stop, 8); // Копируем 8 байт из массива в буфер
-    time_DataGim43(500); // Печать позиции мотора с заданной периодичностью
-    time_LED(1000); // МИгание светодиодом с заданной периодичностью и вывод лога по SPI обмену
+    time_DataGim43(333); // Печать позиции мотора с заданной периодичностью
+    // time_LED(1000); // МИгание светодиодом с заданной периодичностью и вывод лога по SPI обмену
   }
 }
 
