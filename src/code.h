@@ -97,7 +97,7 @@ void executeDataReceive()
 // Отработка действий по шине CAN
 void workingCAN()
 {
-    if (flagCAN && millis() > timeCAN + 150) // Если есть флаг и прогло более милиисекунд то сбрасываем флаг и исполняем
+    if (flagCAN && millis() > timeCAN + 300) // Если есть флаг и прогло более милиисекунд то сбрасываем флаг и исполняем
     {
         flagCAN = false;
         setData(0, 0, 0, 0, 0, buffCAN); // Нулевые все значения
